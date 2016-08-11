@@ -8,8 +8,9 @@
 # mdrop get-missing [folder]
 # mdrop view-folder [folder]
 
-CodeDir = "/home/janiserdmanis/Dropbox/Cebers/CodeBase/"
+include(homedir()*"/secrets")
 
+CodeDir = "/home/janiserdmanis/Dropbox/Cebers/CodeBase/"
 SESSION = "mmmdrop"
 
 type PC
@@ -26,8 +27,8 @@ type PC
     end
 end
 
-pc1 = PC("janiserdmanis@5.179.6.146","jea1992","~/Dokumenti/calculation8/",6)
-pc2 = PC("janiserdmanis@5.179.6.144","jea1992","~/Documents/calculation8/",4)
+pc1 = PC("janiserdmanis@5.179.6.146",PASS_PC1,"~/Dokumenti/calculation8/",6)
+pc2 = PC("janiserdmanis@5.179.6.144",PASS_PC2,"~/Documents/calculation8/",4)
 
 ### Some convinient functions
 

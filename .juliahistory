@@ -8,3 +8,7 @@ using SurfaceGeometry
 Pkg.resolve()
 using SurfaceGeometry
 volume
+Pkg.resolve()
+using SurfaceGeometry
+Pkg.status()
+ls
