@@ -1,0 +1,1 @@
+ENV["JULIA_PKGDIR"] = pwd() * "/Packages"

@@ -1,0 +1,13 @@
+# pack-refs with: peeled fully-peeled 
+367912d2154dabe1efb96be200e4fa944354d700 refs/heads/julia-breaking
+d17f3b19282e719a33b169ea46d660d51bbf5a9d refs/heads/master
+f5d9ebb53b22be2dcfffcb4fae71d94388753c91 refs/pull/19/head
+a061560324cfee8315a8c1e799f8ff0f772dfcef refs/pull/20/head
+def2333d927d7e113880133980e6f983fb1329a3 refs/pull/20/merge
+1b58277186e4905281885576798424aefa282b84 refs/pull/22/head
+e8107402fa92ae01e0386ee7b1fc2c1b6af393e1 refs/pull/23/head
+a2936e8685634fecff116e139ca25d926551e0c2 refs/pull/26/head
+dd0189bba6b6b5c2253197ebdf6e28eeafeb46c2 refs/pull/5/head
+949acf80728ec59a88b7b8430241f9b53cfbbfee refs/pull/6/head
+6847eca980f015b30e25653d5aa252f7266a94c9 refs/tags/v0.1.0
+^738cec2ef21210cdc0370673503f74678ba31e9e

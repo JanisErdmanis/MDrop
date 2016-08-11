@@ -1,0 +1,81 @@
+% Some notes on using the code
+% Jānis Erdmanis
+% deceber 15th 2015
+
+* Simple ways of using it on external computer
+  
+As it is usually a case that calculation takes a lot of time threrefore I use external server to which I push code directory so in meantime I can keep developing my code.
+- ssh janiserdmanis@5.179.6.146 :: logs me into the server
+- tmux :: satrts new process
+- tmux attach-session -t 1 :: atach to a specified session
+- C-B D :: keybinding for tmux to go outside the session
+- rsync -a . janiserdmanis@5.179.6.146:~/Dokumenti/calculation :: pushes calculation data to the server
+- rsync -a --info=progress2 ~/.julia/ janiserdmanis@5.179.6.146:~/.julia :: Some configuration if SurfaceGeometry or Storage scripts gets changed
+- rsync -a janiserdmanis@5.179.6.146:~/.julia/v0.4/Storage/ ~/.julia/v0.4/Storage :: pulls calculation results from the server
+
+* Working with github
+  
+* Tricks with Rsync
+
+  - Getting a clean version of code directory
+  rsync -av --exclude="*/.*" --exclude="Packages/v0.4/METADATA" --exclude="*.so" --exclude="*/#*#" --exclude=".o" --exclude=".a" --exclude="*~" --exclude="*/CmakeCache.txt" . /Some/Dir
+  - A more minimal for deploying code on the server
+    rsync -av --exclude="*/.*" . /Some/Dir
+  
+* Building of code
+
+  The julia code does not need compilation step, however for many external libraries it has to be done. In order to compile theese libraries must be present on the system
+
+  sudo apt-get install libcgal-dev liblapack-dev libblas-dev
+  sudo apt-get install csh hdf5-tools python-matplolib cmake
+  (Also install Matlab if you plan to use Distmesh surface mesher)
+  
+  To actually build the code execute a following commands
+
+  ENV["JULIA_PKGDIR"] = pwd() * "/Packages"
+  Pkg.build()
+
+  For testing if these libraries works use a following syntax
+
+  Pkg.test("SurfaceGeometry")
+
+  And you are done. Check out the simulation code in main directory.
+
+* Running some simple simulations
+
+  Start interactive julia session and execute
+
+  case = 50
+  include("rotatingdiary.jl")
+
+  For viewing the simulation data stored in ~/SimulationData directory (you can change it in Storage.jl) do
+
+  case = 50
+  calculate = false
+  include("rotatingdiary.jl")  
+
+* Deploying simulations on the server
+
+  rsync -a --exclude="*/.*" --info=progress2 . janiserdmanis@5.179.6.146:~/Dokumenti/calculation
+  rsync -a janiserdmanis@5.179.6.146:~/SimulationData/ ~/SimulationData
+
+  In case you need to rebuild binaries, go to the [Building of code]. You still need to install hdf5-tools. 
+  
+* Some usefull stuff for building
+
+  If you really want to trim down the size of code in the directory Packages leave only following
+
+  SurfaceGeometry
+  Storage
+  REQUIRE
+  META_BRANCH
+
+  Then to obtain everything else
+
+  Pkg.resolve()
+  Pkg.build("SurfaceGeometry")
+
+  
+
+
+  

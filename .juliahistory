@@ -1,0 +1,10 @@
+LOAD_PATH
+include(".juliarc.jl")
+using SurfaceGeometry
+Pkg.resolve()
+.q
+q
+using SurfaceGeometry
+Pkg.resolve()
+using SurfaceGeometry
+volume
