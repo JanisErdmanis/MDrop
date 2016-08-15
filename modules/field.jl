@@ -1,5 +1,30 @@
 using SurfaceGeometry
 
+
+### The Best way of making calculation now
+### One which needs signifficant improvement for speed
+function surfacefield(points,faces,normals,mup,Htime)
+
+    psi = PotentialSimple(points,faces,mup,Htime)
+    H = HField(points,faces,psi)
+    Ht = Array(Float64,size(points,2))
+    for xkey in 1:size(points,2)
+        nx = normals[:,xkey]
+        P = eye(3) - nx*nx'
+        Ht[xkey] = norm(P*H[:,xkey])
+    end
+    
+    # rpoints, rfaces = subdivision(points,faces; method=:paraboloid)
+    # Hn = NormalFieldTrapezodial(rpoints,faces,rfaces,mup,H0;NP=3)
+    #if normalfield==:current
+    Hn = NormalFieldCurrent(points,faces,H,mup,Htime)
+    # elseif normalfield==:traditional
+    #     Hn = NormalField(points,faces,mup,Htime;regularize=false)
+    # end
+
+    return psi,Ht,Hn
+end    
+
 ### Old way
 # using Cubature
 # function strquad(q::Function,x1,x2,x3;abstol=0)
@@ -1440,7 +1465,7 @@ function PotentialGaussianTrapezodial(points,faces,rfaces,hmag,H0; NP=3, normals
                 else
                     break
                 end
-                    
+                
             end
 
             A[faces[w,ti]...,xkey] += s[1]

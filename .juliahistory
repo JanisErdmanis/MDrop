@@ -12,3 +12,22 @@ Pkg.resolve()
 using SurfaceGeometry
 Pkg.status()
 ls
+using SurfaceGeometry
+include(homedir()*"secrets")
+include(homedir()*"/secrets")
+PASS
+PASS_PC1
+using SurfaceGeometry
+.q
+.q
+EllipsoidMeshLoad
+EllipsoidMeshLoad
+loadmesh
+points 
+par
+volume(points,faces)
+h
+omega
+omega
+H0
+t
