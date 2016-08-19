@@ -45,3 +45,26 @@ elparameters(scale) = Elparameters(
 
 par = elparameters(0.2)
 zc = nothing
+
+if length(ARGS)>0
+    info("Owerwritting default configuration with $(ARGS[1])")
+    include(ARGS[1])
+else
+    contents = readdir(dirname(@__FILE__)*"/"*"calcpar")
+
+    for i in 1:length(contents)
+        println("$i \t $(contents[i])")
+    end
+
+    println("Pick configuration file or press Enter for default")
+
+    try
+        N = parse(Int,readline(STDIN))
+        pick = contents[N]
+        outdir = pick[1:length(pick)-4]    
+        include("calcpar/"*pick)
+    catch
+        info("Using default parameters")
+    end
+end
+

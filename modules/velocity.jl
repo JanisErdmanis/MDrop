@@ -86,7 +86,6 @@
 #     return velocityn
 # end
 
-
 function InterfaceSpeedPozikridis(points,faces,forcen,etaP)
 
     ### A possible improvement would be the interpolation of curvature and normal

@@ -1,52 +1,77 @@
 include("defaultpar.jl")
-### This is the place where one adds his own set of parameters
 include("modules/field.jl")
 include("modules/velocity.jl")
 
-if !isdir(datadir*"/SlowFieldEiler")
-    mkdir(datadir*"/SlowFieldEiler")
+bname = "/SlowFieldEiler/"
+
+function DropEnergy(points,faces,normals,psi,H0)
+
+    vareas = zeros(Float64,size(points,2))
+    for i in 1:size(faces,2)
+        v1,v2,v3 = faces[:,i]
+        area = norm(cross(points[:,v2]-points[:,v1],points[:,v3]-points[:,v1])) /2
+        vareas[v1] += area/3
+        vareas[v2] += area/3
+        vareas[v3] += area/3
+    end
+
+    Area = sum(vareas)
+
+    # psix = PotentialSimple(points,faces,mup,H0*[1,0,0],regularize=true)
+    # psiy = PotentialSimple(points,faces,mup,H0*[0,1,0],regularize=true)
+
+    s = 0
+
+    for xkey in 1:size(points,2)
+        #s += dot(H0/2*[psix[xkey],psiy[xkey],0],normals[:,xkey]) * vareas[xkey]
+        s += psi[xkey]*dot(H0,normals[:,xkey]) * vareas[xkey]
+    end
+
+    Es = gammap * Area
+    Em = 1/8/pi * (1 - mup) * s
+
+    ### Here I could also do the normalisation of it    
+    return Es+Em
 end
 
-if isdir(datadir*"/SlowFieldEiler/"*outdir)
+if !isdir(datadir*bname)
+    mkdir(datadir*bname)
+end
+
+if isdir(datadir*bname*outdir)
     info("Continuing from last simulation")
     ### Now for testing purposes
 
     # Reinitialise step number i
     # Gets the latest 
 
-    rm(datadir*"/SlowFieldEiler/"*outdir)
-    mkdir(datadir*"/SlowFieldEiler/"*outdir)
+    run(`rm -rf $(datadir*bname*outdir)`)
+    mkdir(datadir*bname*outdir)
 else
-    mkdir(datadir*"/SlowFieldEiler/"*outdir)
+    mkdir(datadir*bname*outdir)
 end
 
 memory = []
 E = []
 ti = 0
-i = 0
-push!(memory,(t,points,faces))
+i = 1
+push!(memory,(ti,points,faces))
 
 while true
     normals = Array(Float64,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
-    # psi = PotentialSimple(points,faces,mup,Htime)
-    # H = HField(points,faces,psi)
-    # Ht = Array(Float64,size(points,2))
-    # for xkey in 1:size(points,2)
-    #     nx = normals[:,xkey]
-    #     P = eye(3) - nx*nx'
-    #     Ht[xkey] = norm(P*H[:,xkey])
-    # end
-
     psi,Ht,Hn = surfacefield(points,faces,normals,mup,H0*[1.,0,0])
 
-    ### At this point I can calculate energy
-    push!(E,1)
+    Ei = DropEnergy(points,faces,normals,psi,H0*[1.,0,0])
+    println("E = $Ei")
+    rV = volume(points,faces)/volume0
+    println("V/V0 = $rV")
+    push!(E,Ei)
 
     if mod(i,5)==0
         storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
-        save(datadir*"/SlowFieldEiler/"*outdir*"/$i.jld","memory",storage)
+        save(datadir*bname*outdir*"/$i.jld","memory",storage)
         memory = []
         E = []
     end
@@ -60,7 +85,7 @@ while true
     ti += h
     i += 1
 
-    push!(memory,(t,points,faces))
+    push!(memory,(ti,points,faces))
     info("Step $i has finished")
     
 end
@@ -69,5 +94,5 @@ end
 ### Makes sense only if simulation exits while loop by itself
 push!(E,NaN)
 storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
-save(datadir*"/SlowFieldEiler/"*outdir*"/$i.jld","memory",storage)
+save(datadir*bname*outdir*"/$i.jld","memory",storage)
 

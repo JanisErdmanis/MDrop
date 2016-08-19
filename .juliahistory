@@ -31,3 +31,152 @@ omega
 omega
 H0
 t
+t
+t
+memory
+isdir(homedir())
+(1,2,3)
+(1,2,3)+(1,2)
+join((1,2,3),(1,2))
+tuple((1,2),(2,3))
+tuple((1,2)...,(2,3)...)
+a = "sddsd.jl"
+dirname(a)
+filename
+filename(a)
+basename(a)
+datadir*bname*outdir
+datadir*bname*outdir*"/5.jld"
+@load datadir*bname*outdir*"/5.jld"
+memory
+1
+convert(Int,"1212")
+parse(Int,"1212")
+1
+1
+1
+.q
+15
+.q
+15
+15
+1
+15
+1
+15
+1
+15
+1
+15
+1
+14
+1
+19
+19
+15
+1
+10
+3
+19
+19
+q
+19
+19
+1
+77
+1
+70
+1
+70
+1
+70
+19
+15
+1
+outfiles
+15
+1
+"12"<"13"
+OutFiles <: AbstractString
+type OutFiles <: AbstractString
+end
+OutFiles("123")
+"12121212" < "1221"
+"12121212" > "1221"
+"00012121212" < "1221"
+"00012121212" > "1221"
+"00012121212" > "1221"
+"00012121212" > "1221"
+"00012121212" < "1221"
+"00012121212" < "1221"
+typeof("12323")
+"00012121212" < "1221"
+"00012121212" < "1221"
+isless("112122122","122")
+isless("112122122","1221111111111111111")
+15
+1
+include("/home/janiserdmanis/Dropbox/MDrop/proc/view.jl")
+15
+1
+15
+1
+19
+search("ssas.jld",".jld")
+a = "asasdasd.jld"
+a[1:length(a)-4]
+"122.jld" < "1221.jld"
+"122.jld" > "1221.jld"
+"122.jld" < "1221.jld"
+"122.jld" < "1221.jld"
+15
+1
+15
+1
+q
+15
+1
+.q
+15
+1
+19
+15
+1
+[(1,2),(2,1)]
+[(1,2),(2,1)] + [(1,2),(1,2),(2,2)]
+[[(1,2),(2,1)], [(1,2),(1,2),(2,2)]]
+[[(1,2),(2,1)]; [(1,2),(1,2),(2,2)]]
+15
+1
+15
+1
+16
+1
+memory
+15
+1
+15
+1
+15
+1
+.q
+91
+88
+88
+outdir
+91
+Bm
+80
+80
+outdir
+83
+91
+93
+91
+91
+87
+Bm
+omega
+78
+Bm
+omega
