@@ -1,16 +1,57 @@
 using SurfaceGeometry
-include("modules/meshes.jl")
+#include("modules/meshes.jl")
 
 datadir = homedir()*"/SimulationData/"
-outdir = "test"
-### Again I would need to have a wa of knowing if code is being included
-points,faces = EllipsoidMeshLoad(1,1,1,0.2)
 
-mup = 10
-Bm = 10
-omega = 10
-tau = 1 ### Unit of time
-h = 0.1
+using ArgParse
+
+s = ArgParseSettings()
+@add_arg_table s begin
+    "--mu"
+    help = "Magnetic permeability"
+    arg_type = Float64
+    default = 10.
+    "--Bm"
+    help = "Magnetic bond number"
+    arg_type = Float64
+    default = 10.
+    "--omega"
+    help = "Rotation frequency in dimensionless units"
+    arg_type = Float64
+    default = 0.
+    "--Dt"
+    help = "Stepsize for advancing smulation"
+    arg_type = Float64
+    default = 0.1
+    "--mesh"
+    help = "Initial mesh picked from mesh foleder."
+    default = "sphere0.2"
+    "--config" # The filename could be derived from this one if given!
+    help = "Configuration file for changing other less important parameters." # Stored in calcpar directory
+    default = nothing
+    "--continue"
+    help = "Continue by using data from previous simulation."
+    #default = false
+    action = :store_true
+    #arg_type = Bool
+end
+
+parsed_args = parse_args(ARGS, s)
+
+con = parsed_args["continue"]
+
+mup = parsed_args["mu"]
+Bm = parsed_args["Bm"]
+omega = parsed_args["omega"]
+h = parsed_args["Dt"]
+mesh = parsed_args["mesh"]
+tau = 1
+
+config = parsed_args["config"]
+
+using JLD
+data = load("meshes/$mesh.jld")
+points,faces = data["points"],data["faces"]
 
 function dimensionless()
     #tau = gammap/etap/(volume(points,faces)*3/4/pi)^(1/3)
@@ -43,28 +84,41 @@ elparameters(scale) = Elparameters(
  m_dt = 1
 )
 
-par = elparameters(0.2)
-zc = nothing
+### Here now I will write a edge length estimator
 
-if length(ARGS)>0
-    info("Owerwritting default configuration with $(ARGS[1])")
-    include(ARGS[1])
-else
-    contents = readdir(dirname(@__FILE__)*"/"*"calcpar")
-
-    for i in 1:length(contents)
-        println("$i \t $(contents[i])")
-    end
-
-    println("Pick configuration file or press Enter for default")
-
-    try
-        N = parse(Int,readline(STDIN))
-        pick = contents[N]
-        outdir = pick[1:length(pick)-4]    
-        include("calcpar/"*pick)
-    catch
-        info("Using default parameters")
-    end
+vareas = zeros(Float64,size(points,2))
+for i in 1:size(faces,2)
+    v1,v2,v3 = faces[:,i]
+    area = norm(cross(points[:,v2]-points[:,v1],points[:,v3]-points[:,v1])) /2
+    vareas[v1] += area/3
+    vareas[v2] += area/3
+    vareas[v3] += area/3
 end
 
+Area = sum(vareas)
+N = size(faces,2)
+scale = sqrt(Area/N*4/sqrt(3))
+
+par = elparameters(scale)
+zc = nothing
+
+if config==nothing
+    outdir = "$mesh:mu=$mup;Bm=$Bm;omega=$omega"
+else
+    include("calcpar/$config.jl")
+    Bm = H0^2*(volume(points,faces)*3/4/pi)^(1/3)/gammap
+    outdir = "$mesh:mu=$mup;Bm=$Bm;omega=$omega:$config"
+end
+
+println("######################################")
+println("mu=$mup")
+println("Bm=$Bm")
+println("omega=$omega")
+println("gamma=$gammap")
+println("eta=$etap")
+println("H0=$H0")
+println("mesh=$mesh")
+println("Dt=$h")
+println("scale=$scale")
+println("N=$(size(faces,2))")
+println("######################################")

@@ -1,3 +1,6 @@
+using JLD
+using SurfaceGeometry
+
 include("defaultpar.jl")
 include("modules/field.jl")
 include("modules/velocity.jl")
@@ -38,24 +41,39 @@ if !isdir(datadir*bname)
     mkdir(datadir*bname)
 end
 
-if isdir(datadir*bname*outdir)
-    info("Continuing from last simulation")
-    ### Now for testing purposes
-
-    # Reinitialise step number i
-    # Gets the latest 
-
-    run(`rm -rf $(datadir*bname*outdir)`)
-    mkdir(datadir*bname*outdir)
-else
-    mkdir(datadir*bname*outdir)
-end
-
 memory = []
 E = []
-ti = 0
-i = 1
+
+if con==true
+    info("Continuing from last simulation")
+    if !isdir(datadir*bname*outdir) || isempty(datadir*bname*outdir)
+        error("No previous simulation found")
+    end
+    # 107;Bm=25.jld ### when viewing find a point or semicolon
+    outfiles = readdir(datadir*bname*outdir)
+
+    import Base.isless
+    function Base.isless(x::ASCIIString,y::ASCIIString)
+        nx = parse(Int,x[1:length(x)-4])
+        ny = parse(Int,y[1:length(y)-4])
+        return nx < ny
+    end
+
+    sort!(outfiles)
+    last = outfiles[end]
+    i = parse(Int,last[1:length(last)-4]) 
+    data = load(datadir*bname*outdir*"/"*last)["memory"][end]
+    ti,points,faces = data[1],data[2],data[3]
+else
+    info("Starting fresh simulation")
+    run(`rm -rf $(datadir*bname*outdir)`)
+    mkdir(datadir*bname*outdir)
+    ti = 0
+    i = 1
+end
+
 push!(memory,(ti,points,faces))
+volume0 = volume(points,faces)
 
 while true
     normals = Array(Float64,size(points)...);
