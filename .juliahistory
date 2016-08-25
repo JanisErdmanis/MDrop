@@ -180,3 +180,23 @@ omega
 78
 Bm
 omega
+using SurfaceGeometry
+area(points,faces)
+ARGS
+mup
+omegap
+omega
+include("$sim.jl")
+con = true
+include("$sim.jl")
+ARGS
+_
+include("$sim.jl")
+Pkg.build("SurfaceGeometry")
+points
+faces
+improvemeshcol
+include("main.jl")
+par = elparameters(0.2)
+include("main.jl")
+par = elparameters(0.2)

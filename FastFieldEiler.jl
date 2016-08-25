@@ -6,7 +6,7 @@ include("modules/velocity.jl")
 
 #bname = "/SlowFieldEiler/"
 
-function DropEnergy(points,faces,normals,psi,H0)
+function DropEnergy(points,faces,normals,psix,psiy,H0)
 
     vareas = zeros(Float64,size(points,2))
     for i in 1:size(faces,2)
@@ -25,8 +25,7 @@ function DropEnergy(points,faces,normals,psi,H0)
     s = 0
 
     for xkey in 1:size(points,2)
-        #s += dot(H0/2*[psix[xkey],psiy[xkey],0],normals[:,xkey]) * vareas[xkey]
-        s += psi[xkey]*dot(H0,normals[:,xkey]) * vareas[xkey]
+        s += dot(H0/2*[psix[xkey],psiy[xkey],0],normals[:,xkey]) * vareas[xkey]
     end
 
     Es = gammap * Area
@@ -78,9 +77,10 @@ while true
     normals = Array(Float64,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
-    psi,Ht,Hn = surfacefield(points,faces,normals,mup,H0*[cos(omega*ti),sin(omega*ti),0])
+    psix,Htx,Hnx = surfacefield(points,faces,normals,mup,H0*[1,0,0])
+    psiy,Hty,Hny = surfacefield(points,faces,normals,mup,H0*[0,1,0])
 
-    Ei = DropEnergy(points,faces,normals,psi,H0*[cos(omega*ti),sin(omega*ti),0])
+    Ei = DropEnergy(points,faces,normals,psix,psiy,H0)
     println("E = $Ei")
     rV = volume(points,faces)/volume0
     println("V/V0 = $rV")
@@ -92,29 +92,20 @@ while true
         memory = []
         E = []
     end
-    
-    tensorn = mup*(mup-1)/8/pi * Hn.^2 + (mup-1)/8/pi * Ht.^2
+
+    tensorn = mup*(mup-1)/8/pi/2 * (Hnx.^2 + Hny.^2) + (mup-1)/8/pi/2 * (Htx.^2 + Hty.^2)
     vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
-
-    points1 = Array(Float64,size(points)...)
-    for j in 1:size(points,2)
-        points1[:,j] = points[:,j] + normals[:,j]*vn[j]*h/2
-    end
-
-    ### Maybe it works if I skip recalculation of normal vectors at this point!
-    psi1,Ht1,Hn1 = surfacefield(points1,faces,normals,mup,H0*[1.,0,0])
-    tensorn1 = mup*(mup-1)/8/pi * Hn1.^2 + (mup-1)/8/pi * Ht1.^2
-    vn1 = InterfaceSpeedZinchenko(points1,faces,tensorn1,etap,gammap)
 
     oldpoints = copy(points)
     for j in 1:size(points,2)
-        points[:,j] += normals[:,j]*vn1[j]*h
+        points[:,j] += normals[:,j]*vn[j]*h
     end
-    
-    ### Can be commented out with ease
-    actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
     ti += h
     i += 1
+
+    ### Can be commented out with ease
+    actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
+
     push!(memory,(ti,points,faces))
     info("Step $i has finished")
 end

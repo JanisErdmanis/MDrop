@@ -1,11 +1,10 @@
 using JLD
 using SurfaceGeometry
 
-include("defaultpar.jl")
 include("modules/field.jl")
 include("modules/velocity.jl")
 
-bname = "/SlowFieldEiler/"
+#bname = "/SlowFieldEiler/"
 
 function DropEnergy(points,faces,normals,psi,H0)
 
@@ -37,20 +36,20 @@ function DropEnergy(points,faces,normals,psi,H0)
     return Es+Em
 end
 
-if !isdir(datadir*bname)
-    mkdir(datadir*bname)
-end
+# if !isdir(datadir*bname)
+#     mkdir(datadir*bname)
+# end
 
 memory = []
 E = []
 
 if con==true
     info("Continuing from last simulation")
-    if !isdir(datadir*bname*outdir) || isempty(datadir*bname*outdir)
+    if !isdir(outdir) || isempty(outdir)
         error("No previous simulation found")
     end
     # 107;Bm=25.jld ### when viewing find a point or semicolon
-    outfiles = readdir(datadir*bname*outdir)
+    outfiles = readdir(outdir)
 
     import Base.isless
     function Base.isless(x::ASCIIString,y::ASCIIString)
@@ -62,12 +61,12 @@ if con==true
     sort!(outfiles)
     last = outfiles[end]
     i = parse(Int,last[1:length(last)-4]) 
-    data = load(datadir*bname*outdir*"/"*last)["memory"][end]
+    data = load("$outdir/$last")["memory"][end]
     ti,points,faces = data[1],data[2],data[3]
 else
     info("Starting fresh simulation")
-    run(`rm -rf $(datadir*bname*outdir)`)
-    mkdir(datadir*bname*outdir)
+    run(`rm -rf $outdir`)
+    mkdir(outdir)
     ti = 0
     i = 1
 end
@@ -79,9 +78,9 @@ while true
     normals = Array(Float64,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
-    psi,Ht,Hn = surfacefield(points,faces,normals,mup,H0*[1.,0,0])
+    psi,Ht,Hn = surfacefield(points,faces,normals,mup,H0*[cos(omega*ti),sin(omega*ti),0])
 
-    Ei = DropEnergy(points,faces,normals,psi,H0*[1.,0,0])
+    Ei = DropEnergy(points,faces,normals,psi,H0*[cos(omega*ti),sin(omega*ti),0])
     println("E = $Ei")
     rV = volume(points,faces)/volume0
     println("V/V0 = $rV")
@@ -89,7 +88,7 @@ while true
 
     if mod(i,5)==0
         storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
-        save(datadir*bname*outdir*"/$i.jld","memory",storage)
+        save("$outdir/$i.jld","memory",storage)
         memory = []
         E = []
     end
@@ -97,20 +96,22 @@ while true
     tensorn = mup*(mup-1)/8/pi * Hn.^2 + (mup-1)/8/pi * Ht.^2
     vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
 
+    oldpoints = copy(points)
     for j in 1:size(points,2)
         points[:,j] += normals[:,j]*vn[j]*h
     end
     ti += h
     i += 1
 
+    ### Can be commented out with ease
+    actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
+
     push!(memory,(ti,points,faces))
     info("Step $i has finished")
-    
 end
 
 ### Storage for last steps
 ### Makes sense only if simulation exits while loop by itself
 push!(E,NaN)
 storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
-save(datadir*bname*outdir*"/$i.jld","memory",storage)
-
+save("$outdir/$i.jld","memory",storage)

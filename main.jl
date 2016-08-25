@@ -34,11 +34,19 @@ s = ArgParseSettings()
     #default = false
     action = :store_true
     #arg_type = Bool
+    "--simulation"
+    help = "The simulation file which is going to be used."
+    default = "SlowFieldEiler"
 end
 
 parsed_args = parse_args(ARGS, s)
 
 con = parsed_args["continue"]
+sim = parsed_args["simulation"]
+
+if !isdir("$datadir/$sim")
+    mkdir("$datadir/$sim")
+end
 
 mup = parsed_args["mu"]
 Bm = parsed_args["Bm"]
@@ -103,11 +111,11 @@ par = elparameters(scale)
 zc = nothing
 
 if config==nothing
-    outdir = "$mesh:mu=$mup;Bm=$Bm;omega=$omega"
+    outdir = "$datadir/$sim/$mesh:mu=$mup;Bm=$Bm;omega=$omega"
 else
     include("calcpar/$config.jl")
     Bm = H0^2*(volume(points,faces)*3/4/pi)^(1/3)/gammap
-    outdir = "$mesh:mu=$mup;Bm=$Bm;omega=$omega:$config"
+    outdir = "$datadir/$sim/$mesh:mu=$mup;Bm=$Bm;omega=$omega:$config"
 end
 
 println("######################################")
@@ -122,3 +130,19 @@ println("Dt=$h")
 println("scale=$scale")
 println("N=$(size(faces,2))")
 println("######################################")
+
+if !isinteractive()
+    if isfile("$sim.jl")
+        if !isdir("$datadir/$sim") 
+            mkdir("$datadir/$sim")
+        end
+        include("$sim.jl")
+    else
+        error("No simulation $sim found.")
+    end
+else
+    outdir = "$datadir/$sim/test"
+end
+
+
+
