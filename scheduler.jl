@@ -7,16 +7,32 @@ type PC
     maxcpuload
     actualload
     function PC(sshlogin,pasword,workingdir,maxcpuload)
-        s = readall(`sshpass -p $pasword ssh $sshlogin "cat /proc/loadavg"`)
+
+        actualload = nothing
+
+        s = @spawn readall(`sshpass -p $pasword ssh $sshlogin "cat /proc/loadavg"`)
+        # wait(Timer(10))
+        # if isready(s)
+        s = fetch(s)
         actualload = parse(Float64,split(s," ")[3])
+        # else
+        #     info("Connection did not work")
+        # end
         #println("pc $sshlogin has a load $actualload")
         new(sshlogin,pasword,workingdir,maxcpuload,actualload)
+        ### return true ### or false depending if connection established succesfully.
     end
 end
 
-pc0 = PC("janiserdmanis@192.168.137.27",PASS_PC1,"~/Documents/calculation9/",4)
-# pc1 = PC("janiserdmanis@5.179.6.146",PASS_PC1,"~/Dokumenti/calculation9/",6)
-# pc2 = PC("janiserdmanis@5.179.6.144",PASS_PC2,"~/Documents/calculation9/",4)
+
+### have a dictionary of computers
+
+pcs = Dict()
+
+#pcs["UX305"] = PC("janiserdmanis@192.168.137.27",PASS_PC1,"~/Documents/calculation9/",4)
+#pcs["JanisPC"] = PC("janiserdmanis@192.168.137.27",PASS_PC1,"~/Documents/calculation9/",6)
+pcs["JanisPC"] = PC("janiserdmanis@5.179.6.146",PASS_PC1,"~/Dokumenti/calculation9/",6)
+pcs["CimursPC"] = PC("janiserdmanis@5.179.6.144",PASS_PC2,"~/Documents/calculation9/",4)
 
 ### See if command is already running
 
@@ -37,9 +53,26 @@ function getsessions(pc)
             push!(sesnames,lli[1:se-1])
         end
     end
-
     return sesnames
 end
+
+function getallsessions()
+
+    allsessions = Any[]
+    
+    for (key,pc) in pcs
+        if pc.actualload==nothing
+            continue
+        end
+        sessions = getsessions(pc)
+        for j in 1:length(sessions)
+            push!(allsessions,("$(sessions[j])","$key"))
+        end
+    end
+
+    return allsessions
+end
+    
 
 ### Printing out load for pcs
 
@@ -47,41 +80,33 @@ end
 
 function runtmux(pc,sesname,command)
 
-    #run(`sshpass -p $(pc.pasword) ssh -t $(pc.sshlogin) "cd $(pc.workingdir)"`)
-    
-    try
-        run(`sshpass -p $(pc.pasword) ssh -t $(pc.sshlogin) "tmux kill-session -t $sesname"`)
-    catch
-        info("session did not exist. Continuing with creating it")
-    end
     run(`sshpass -p $(pc.pasword) ssh -t $(pc.sshlogin) "cd $(pc.workingdir) && tmux new-session -d -s $sesname && tmux send-keys -t $sesname:0 \"$command\" C-m "`)
 end
 
 function runtmux(sesname,command)
 
-    ### Function which checks if sesname is not already running
-    # error("Command already runing")
+    # Function which checks if sesname is not already running
 
-    if pc0.actualload<pc0.maxcpuload
-        info("Simulation $sesname submited on pc0")
-        runtmux(pc0,sesname,command)
-        pc0.actualload += 1
-    # elseif pc1.actualload<pc1.maxcpuload
-    #     info("Simulation $sesname submited on pc1")
-    #     runtmux(pc1,sesname,command)
-    #     pc1.actualload += 1
-    # elseif pc2.actualload<pc2.maxcpuload
-    #     info("Simulation $sesname submited on pc2")
-    #     runtmux(pc2,sesname,command)
-    #     pc2.actualload += 1
-    else
+    submitted = false
+
+    for (key,pc) in pcs
+        if pc.actualload<pc.maxcpuload
+            runtmux(pc,sesname,command)
+            info("Simulation $sesname submited on $key")
+            submitted = true
+            break
+        end
+    end
+
+    if submitted==false
         error("PCS are overloaded with tasks")
     end
 end
 
 function runtmux(command)
-    sesnames = getsessions(pc0)
+    sessions = getallsessions()
 
+    sensnames = [sesi for (sesi,key) in sessions]
     if command in sesnames
         error("Already running")
     else
@@ -89,24 +114,7 @@ function runtmux(command)
     end
 end
 
-# function runtmux(command)
-
-# end
-
 ### Printing out output of simulation -> connect to tmux
-
-function connectsession()
-
-    sessions = getsessions(pc0)
-
-    for i in 1:length(sessions)
-        println("$i \t $(sessions[i]) \t pc0")
-    end
-
-    choice = parse(Int,readline(STDIN))
-    pc = pc0
-    run(`sshpass -p $(pc.pasword) ssh -t $(pc.sshlogin) "tmux attach-session -t $(sessions[choice])"`)    
-end
     
 function pushpc(pc)
     run(`sshpass -p $(pc.pasword) rsync -a --exclude="*/.*" --info=progress2  $BaseDir/ $(pc.sshlogin):$(pc.workingdir)`)
@@ -120,15 +128,18 @@ if length(ARGS)==0
     ### Prints status by default
     println("###### CPU load of available pcs #######")
 
-    pc = pc0
-    println("pc $(pc.sshlogin) has a load $(pc.actualload)")
+    for (key,pc) in pcs
+        println("$key $(pc.sshlogin) has a load $(pc.actualload)")
+    end
     
     println("###### Active calculations #######")
-    sessions = getsessions(pc0)
 
-    for i in 1:length(sessions)
-        println("$i \t $(sessions[i]) \t pc0")
+    allsesnames = getallsessions()
+
+    for (i,(sesi,key)) in enumerate(allsesnames)
+        println("$i \t $sesi \t $key")
     end
+
 else
     # !(replace(item,".","-") 
     
@@ -141,23 +152,28 @@ else
         
     elseif ARGS[1]=="connect"
 
-        sessions = getsessions(pc0)
+        sessions = getallsessions()
         if length(ARGS)>1
             choice = parse(Int,ARGS[2])
         else
-            for i in 1:length(sessions)
-                println("$i \t $(sessions[i]) \t pc0")
+            for (i,(sesi,key)) in enumerate(sessions)
+                println("$i \t $sesi \t $key")
             end
 
             choice = parse(Int,readline(STDIN))
         end
-        pc = pc0
-        run(`sshpass -p $(pc.pasword) ssh -t $(pc.sshlogin) "tmux attach-session -t $(sessions[choice])"`)    
+        ses,key = sessions[choice]
+        pc = pcs[key]
+        run(`sshpass -p $(pc.pasword) ssh -t $(pc.sshlogin) "tmux attach-session -t $ses"`)    
 
     elseif ARGS[1]=="push" ### Additional argument for pushing last steps to all pcs
-        pushpc(pc0)
+        for pc in values(pcs)
+            pushpc(pc)
+        end
     elseif ARGS[1]=="pull"
-        pullpc(pc0)
+        for pc in values(pcs)
+            pullpc(pc)
+        end
     end
 end
-    
+   
