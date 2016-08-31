@@ -97,6 +97,14 @@ while true
     println("V/V0 = $rV")
     push!(E,Ei)
 
+    tensorn = mup*(mup-1)/8/pi * Hn.^2 + (mup-1)/8/pi * Ht.^2
+    vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
+
+    ### Can be commented out with ease
+    # if !(maximum(abs(vn))*(ti-tp) < scale && ti!=tp && xp-xi>0)
+    #     actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
+    # end
+
     xp = xi
     xi = maximum(abs(vn))*(ti-tp)
     println("$xi < $(scale/10); xi-xp=$(xp-xi)")
@@ -114,25 +122,22 @@ while true
         tp = ti
         info("Proceeding with next quasistep")
         xi = 0
-        
+
         actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
         oldpoints = copy(points)
-    end
 
-    tensorn = mup*(mup-1)/8/pi * Hn.^2 + (mup-1)/8/pi * Ht.^2
-    vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
+        #continue
+    else
+        # For avoiding problems
+        for j in 1:size(points,2)
+            points[:,j] += normals[:,j]*vn[j]*h
+        end
+    end
 
     #    oldpoints = copy(points)
-    for j in 1:size(points,2)
-        points[:,j] += normals[:,j]*vn[j]*h
-    end
+
     ti += h
     i += 1
-
-    ### Can be commented out with ease
-    # if !(maximum(abs(vn))*(ti-tp) < scale && ti!=tp && xp-xi>0)
-    #     actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
-    # end
 
     push!(memory,(ti,copy(points),faces))
     info("Step $i has finished")

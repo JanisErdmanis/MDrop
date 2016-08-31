@@ -71,7 +71,7 @@ else
     ti = 0
     i = 1
 
-    Bmi = 5.
+    Bmi = 1.
     H0i = sqrt(Bmi*gammap/(volume(points,faces)*3/4/pi)^(1/3))
 end
 
@@ -82,6 +82,7 @@ vn = zeros(points)
 tp = 0
 xp = 0
 xi = 0
+oldpoints = copy(points)
 
 while true
     normals = Array(Float64,size(points)...);
@@ -96,10 +97,19 @@ while true
     println("V/V0 = $rV")
     push!(E,Ei)
 
+    tensorn = mup*(mup-1)/8/pi/2 * (Hnx.^2 + Hny.^2) + (mup-1)/8/pi/2 * (Htx.^2 + Hty.^2)
+    vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
+
+    for j in 1:size(points,2)
+        points[:,j] += normals[:,j]*vn[j]*h
+    end
+    ti += h
+    i += 1
+
     xp = xi
     xi = maximum(abs(vn))*(ti-tp)
-    println("$xi < $(scale/10); xi-xp=$(xp-xi)")
-    if maximum(abs(vn))*(ti-tp) < scale/10 && ti!=tp && xp-xi>0
+    println("$xi < $scale; xi-xp=$(xp-xi)")
+    if maximum(abs(vn))*(ti-tp) < scale && ti!=tp && xp-xi>0
         storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
         save("$outdir/$i.jld","memory",storage)
         memory = []
@@ -107,30 +117,23 @@ while true
         if Bmi>Bm
             break
         else
-            Bmi += 5.
+            Bmi += 1.
         end
         H0i = sqrt(Bmi*gammap/(volume(points,faces)*3/4/pi)^(1/3))
         tp = ti
         info("Proceeding with next quasistep")
         xi = 0
-    end
 
-    tensorn = mup*(mup-1)/8/pi/2 * (Hnx.^2 + Hny.^2) + (mup-1)/8/pi/2 * (Htx.^2 + Hty.^2)
-    vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
-
-    oldpoints = copy(points)
-    for j in 1:size(points,2)
-        points[:,j] += normals[:,j]*vn[j]*h
-    end
-    ti += h
-    i += 1
-
-    ### Can be commented out with ease
-    if !(maximum(abs(vn))*(ti-tp) < scale && ti!=tp && xp-xi>0)
         actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
+        oldpoints = copy(points)
     end
+    
+    # ### Can be commented out with ease
+    # if !(maximum(abs(vn))*(ti-tp) < scale && ti!=tp && xp-xi>0)
+    #     actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
+    # end
 
-    push!(memory,(ti,points,faces))
+    push!(memory,(ti,copy(points),faces))
     info("Step $i has finished")
 end
 
