@@ -35,6 +35,17 @@ function DropEnergy(points,faces,normals,psix,psiy,H0)
     return Es+Em
 end
 
+function PointPerturbation(scale)
+    DR = rand()*scale/20
+    phi = rand()*2*pi
+    theta = rand()*pi
+
+    x = DR*sin(theta)*cos(phi)
+    y = DR*sin(theta)*sin(phi)
+    z = DR*cos(theta)
+    return [x,y,z]
+end
+
 # if !isdir(datadir*bname)
 #     mkdir(datadir*bname)
 # end
@@ -71,7 +82,7 @@ else
     ti = 0
     i = 1
 
-    Bmi = 1.
+    Bmi = 15.
     H0i = sqrt(Bmi*gammap/(volume(points,faces)*3/4/pi)^(1/3))
 end
 
@@ -109,7 +120,7 @@ while true
     xp = xi
     xi = maximum(abs(vn))*(ti-tp)
     println("$xi < $scale; xi-xp=$(xp-xi)")
-    if maximum(abs(vn))*(ti-tp) < scale && ti!=tp && xp-xi>0
+    if maximum(abs(vn))*(ti-tp) < scale/5 && ti!=tp && xp-xi>0
         storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
         save("$outdir/$i.jld","memory",storage)
         memory = []
@@ -126,6 +137,10 @@ while true
 
         actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
         oldpoints = copy(points)
+
+        for j in 1:size(points,2)
+            points[:,j] += PointPerturbation(scale)
+        end
     end
     
     # ### Can be commented out with ease
