@@ -12,7 +12,10 @@
 
 Assuming you are `Ubuntu` user install required dependencies `sudo apt-get install -y libcgal-dev liblapack-dev libblas-dev`, `sudo apt-get install csh hdf5-tools python-matplolib cmake` and if you want to use Distmesh mesh you also need Matlab. In julia REPL execute following lines
 ```
+Pkg.init()
 Pkg.add("JLD")
+Pkg.add("ArgParse")
+Pkg.add("FastGaussQuadrature")
 Pkg.clone("https://github.com/akels/SurfaceGeometry.jl")
 Pkg.build("SurfaceGeometry")
 ```
@@ -28,7 +31,7 @@ Pkg.add("Elliptic")
 
 # Running simulation
 
-  For running simulation execute in MDrop directory `julia -L .juliarc.jl mdrop.jl --simulation=FastField --Bm=20 --mu=10` which will run `FastField.jl` and sore results in `~/SimulationData`. Instead of passing command line arguments you can run simulation also as `julia -L .juliarc.jl -L config.jl Fastfield.jl`. 
+  For running simulation execute in MDrop directory `julia -L .juliarc.jl mdrop.jl --simulation=FastField --Bm=20 --mu=10` which will run `FastField.jl` and sore results in `~/SimulationData`. Instead of passing command line arguments you can run simulation also as `julia -L .juliarc.jl -L config.jl Fastfield.jl`.
   
 # For citing this work refer to JFM article [not published yet]
   
