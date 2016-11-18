@@ -2,11 +2,11 @@
 % Jānis Erdmanis
 % November 18 2016
 
-* About
+# About
 
   Magnetic droplet surface evolution boundary integral algorithms (BIE or BEM) according to magnetosatics and Stokes equations in general 3D case are presented in this repository.  
 
-* Requirements
+# Requirements
 
   The code is written in `julia 0.4` and should work fine with latter versions. The code depends on `JLD.jl` which stores and loads meshes and simulations; `SurfaceGeometry.jl` which deals with mesh generation, stabilisation and others which are used for processing simulation results. 
 
@@ -26,9 +26,9 @@ Pkg.add("PyPlot")
 Pkg.add("Elliptic")
 ```
 
-* Running simulation
+# Running simulation
 
   For running simulation execute in MDrop directory `julia -L .juliarc.jl mdrop.jl --simulation=FastField --Bm=20 --mu=10` which will run `FastField.jl` and sore results in `~/SimulationData`. Instead of passing command line arguments you can run simulation also as `julia -L .juliarc.jl -L config.jl Fastfield.jl`. 
   
-* For citing this work refer to JFM article [not published yet]
+# For citing this work refer to JFM article [not published yet]
   
