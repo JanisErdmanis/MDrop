@@ -1,11 +1,16 @@
-ENV["JULIA_PKGDIR"] = dirname(@__FILE__) * "/Packages"
+#ENV["JULIA_PKGDIR"] = dirname(@__FILE__) * "/Packages"
 
 #using SurfaceGeometry
-using Storage
+#using Storage
 
-include("../field.jl")
+include("../modules/field.jl")
 
-# a,b,c = 2,1,1
+using JLD
+#include("../field.jl")
+
+a,b,c = 2,1,1
+@load "meshes/211-0.2matlab.jld"
+
 # (points,faces)=EllipsoidMeshLoad(a,b,c,0.2)
 
 mup = 10
@@ -13,8 +18,8 @@ mup = 10
 # a,b,c = 2,1/4,1/4
 # (points,faces)=EllipsoidMeshLoad(a,b,c,0.1)
 
-a,b,c = 2,1/6,1/6
-(points,faces)=EllipsoidMeshLoad(a,b,c,0.05)
+# a,b,c = 2,1/6,1/6
+# (points,faces)=EllipsoidMeshLoad(a,b,c,0.05)
 
 # a,b,c = 1/4,1,1
 # points,faces = EllipsoidMeshLoad(a,b,c,0.15)
@@ -100,9 +105,17 @@ end
 #points, rfaces = subdivision(points,faces,x -> x[1]^2/a^2 + x[2]^2/b^2 + x[3]^2/c^2 - 1)
 #points, rfaces = subdivision(points,faces; method=:paraboloid)
 
-@time psi = PotentialSimple(points,faces,mup,[1,0,0])
-H = HField(points,faces,psit)
-@time Hn = NormalFieldCurrent(points,faces,Ht,mup,[1,0,0],normals=normals)
+
+### EXISTING METHOD
+# @time psi = PotentialSimple(points,faces,mup,[1,0,0])
+# H = HField(points,faces,psit)
+# @time Hn = NormalFieldCurrent(points,faces,Ht,mup,[1,0,0],normals=normals)
+
+### Traditional normal field way
+#@time Hn = NormalField(points,faces,mup,[1,0,0],regularize=false,normals=normals)
+### Regularized way
+@time Hn = NormalField(points,faces,mup,[1,0,0],regularize=true,normals=normals)
+
 #Hn = NormalFieldCurrentRegularized(points,faces,H,10,[1,0,0])
 #Hn = NormalFieldCurrentGaussian(points,faces,H,10,[1,0,0],NP=16)
 
@@ -121,7 +134,7 @@ Htheor = EllipsoidField(a,b,c,mup,[1,0,0])
 for xkey in 1:maximum(faces)
     Hnt = dot(Htheor,normals[:,xkey])
     r = abs((Hn[xkey] - Hnt)/Hnt)
-    term = dot(H0,normals[:,xkey])/mup
+    term = dot([1,0,0],normals[:,xkey])/mup
     #importance = abs((Hn[xkey] - term)/term)
     importance = abs((Hnt - term)/term)
     #integral error
@@ -132,6 +145,8 @@ for xkey in 1:maximum(faces)
     push!(rarr,r)
     #println("Hn is $(round(Hnt,3)) and computed $(round(Hn[xkey],3)) and r = $(round(r,3)) importance = $(round(importance,3)) ri = $(round(bigerr,3))")
 end
+
+println("Average relative error is $(mean(rarr)*100) %")
 
 # ########## Some testing
 

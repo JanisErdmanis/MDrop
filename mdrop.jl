@@ -1,8 +1,6 @@
 using SurfaceGeometry
 #include("modules/meshes.jl")
 
-datadir = homedir()*"/SimulationData/"
-
 using ArgParse
 
 s = ArgParseSettings()
@@ -13,8 +11,8 @@ s = ArgParseSettings()
     default = 10.
     "--Bm"
     help = "Magnetic bond number"
-    arg_type = Float64
-    default = 10.
+    arg_type = AbstractString #Float64
+    default = "10."
     "--omega"
     help = "Rotation frequency in dimensionless units"
     arg_type = Float64
@@ -36,7 +34,7 @@ s = ArgParseSettings()
     #arg_type = Bool
     "--simulation"
     help = "The simulation file which is going to be used."
-    default = "SlowFieldEiler"
+    default = "FastField"
 end
 
 parsed_args = parse_args(ARGS, s)
@@ -49,7 +47,7 @@ if !isdir("$datadir/$sim")
 end
 
 mup = parsed_args["mu"]
-Bm = parsed_args["Bm"]
+Bm = eval(parse(parsed_args["Bm"]))
 omega = parsed_args["omega"]
 h = parsed_args["Dt"]
 mesh = parsed_args["mesh"]

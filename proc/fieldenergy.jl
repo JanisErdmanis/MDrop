@@ -1,13 +1,13 @@
 ### Loads a mesh and calculates a energy for the magnetic liquid drop
-ENV["JULIA_PKGDIR"] = dirname(@__FILE__) * "/Packages"
+#ENV["JULIA_PKGDIR"] = dirname(@__FILE__) * "/Packages"
 
 using SurfaceGeometry
 
-include("Calculation/field.jl")
+include("../modules/field.jl")
 
 ### Calculation of psi
 
-function RotatingFieldEnergy(points,faces,psix,psiy,mup,gammap,H0)
+function RotatingFieldEnergy(points,faces,mup,gammap,H0)
 
     normals = Array(Float64,size(points)...)
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
@@ -23,8 +23,8 @@ function RotatingFieldEnergy(points,faces,psix,psiy,mup,gammap,H0)
 
     Area = sum(vareas)
 
-    # psix = PotentialSimple(points,faces,mup,H0*[1,0,0],regularize=true)
-    # psiy = PotentialSimple(points,faces,mup,H0*[0,1,0],regularize=true)
+    psix = PotentialSimple(points,faces,mup,H0*[1,0,0],regularize=true)
+    psiy = PotentialSimple(points,faces,mup,H0*[0,1,0],regularize=true)
 
     s = 0
 
@@ -75,18 +75,87 @@ function TheoreticalRotatingFieldEnergy(a,b,c,mup,H0)
 end
 
 
+import Elliptic
+function EllipsoidArea(a,b,c)
+
+    if a<b
+        a,b = b
+    end
+    if b<c
+        b,c = c,a
+    end
+    if a<b
+        a,b = b,a
+    end
+
+    cosphi = c/a
+    phi = acos(cosphi)
+    sinphi = sqrt(1 - cosphi^2)
+    k = sqrt(a^2*(b^2-c^2)/b^2/(a^2-c^2))
+
+    S = 2*pi*c^2 + 2*pi*a*b/sinphi * (sinphi^2 * Elliptic.E(phi,k) + cosphi^2 * Elliptic.F(phi,k))
+
+    return S
+end
+
+function TheoreticalDropEnergy(a,b,c,mup,Bm)
+    ### I should scale a,b,c inside
+    
+    gammap = 1.
+    H0 = sqrt(Bm*gammap/(a*b*c)^(1/3))
+    Emt = TheoreticalRotatingFieldEnergy(a,b,c,mup,H0)
+
+    Etotal = Emt + gammap*EllipsoidArea(a,b,c) # + surface area
+end
+
+
+function getabc(points)
+
+    ar = 0
+    al = 0
+    br = 0
+    bl = 0
+    cr = 0
+    cl = 0
+    
+    for xkey in 1:size(points,2)
+        x = points[:,xkey]
+        x[1]<al && (al=x[1])
+        x[1]>ar && (ar=x[1])
+        x[2]<bl && (bl=x[2])
+        x[2]>br && (br=x[2])
+        x[3]<cl && (cl=x[3])
+        x[3]>cr && (cr=x[3])
+    end
+
+    a = (ar - al)/2
+    b = (br - bl)/2
+    c = (cr - cl)/2
+
+    return a,b,c
+end
+
 ############### Testing ##################
 
-# using Storage
+using JLD
 
-# a,b,c = 2,1/4,1/4
-# (points,faces)=EllipsoidMeshLoad(a,b,c,0.1)
+#a,b,c = 2,1/4,1/4
+#@load "meshes/desa0.1.jld"
+#@load "meshes/mu10Bm50.jld"
+@load "meshes/sphere0.2.jld"
+a,b,c = getabc(points)
 
-# #points,faces = subdivision(points,faces,x->x[1]^2/a^2 + x[2]^2/b^2 + x[3]^2/c^2 - 1)
+#(points,faces)=EllipsoidMeshLoad(a,b,c,0.1)
+#points,faces = subdivision(points,faces,x->x[1]^2/a^2 + x[2]^2/b^2 + x[3]^2/c^2 - 1)
 
-# mup = 10
-# H0 = 10
-# gammap = 1
+mup = 10
+#H0 = 100
+gammap = 1
+Bm = 1
+H0 = sqrt(Bm*gammap/(a*b*c)^(1/3))
 
-# Es, Em =  RotatingFieldEnergy(points,faces,mup,gammap,H0)
-# Emt = TheoreticalRotatingFieldEnergy(a,b,c,mup,H0)
+Es, Em =  RotatingFieldEnergy(points,faces,mup,gammap,H0)
+Emt = TheoreticalRotatingFieldEnergy(a,b,c,mup,H0)
+Est =  gammap*EllipsoidArea(a,b,c) 
+
+println("Etotal=$(Es+Em) Etotalt=$(Est + Emt)")

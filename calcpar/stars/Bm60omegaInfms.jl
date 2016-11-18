@@ -1,1 +1,0 @@
-../Bm60omegaInfms.jl

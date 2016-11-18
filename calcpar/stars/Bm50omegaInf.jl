@@ -1,1 +1,0 @@
-../Bm50omegaInf.jl

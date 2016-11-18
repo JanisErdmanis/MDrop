@@ -1,1 +1,0 @@
-../Bm72omegaInfm1.jl

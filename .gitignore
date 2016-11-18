@@ -2,4 +2,7 @@
 *#*#
 *!*
 *.#*
+proc/tex.cache/
+packages/lib
+packages/v0.4
 .cache/

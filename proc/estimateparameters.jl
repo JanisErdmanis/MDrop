@@ -64,50 +64,66 @@ end
 # a,b,c = 2,1/4,1/4
 # (points,faces)=EllipsoidMeshLoad(a,b,c,0.1)
 
-case = 55
-session = "rotatingfield"
-calculate = false
+# case = 55
+# session = "rotatingfield"
+# calculate = false
 
-include("diaryrot.jl")
+# include("diaryrot.jl")
 
-tmax,points,faces = memory[end]
+# tmax,points,faces = memory[end]
+function getabc(points)
+    # R = rotatetoaxis(points)
+    # for xkey in 1:size(points,2)
+    #     points[:,xkey] = R*points[:,xkey]
+    # end
 
-R = rotatetoaxis(points)
+    ar = 0
+    al = 0
+    br = 0
+    bl = 0
+    cr = 0
+    cl = 0
+    
+    for xkey in 1:size(points,2)
+        x = points[:,xkey]
+        x[1]<al || (al=x[1])
+        x[1]>ar || (ar=x[1])
+        x[2]<bl || (bl=x[2])
+        x[2]>br || (br=x[2])
+        x[3]<cl || (cl=x[3])
+        x[3]>cr || (cr=x[3])
+    end
 
-for xkey in 1:size(points,2)
-    points[:,xkey] = R*points[:,xkey]
+    a = (ar - al)/2
+    b = (br - bl)/2
+    c = (cr - cl)/2
+
+    return a,b,c
 end
 
-a = 0
-b = 0
-c = 0
-for xkey in 1:size(points,2)
-    x = points[:,xkey]
-    abs(x[1])<a || (a=abs(x[1]))
-    abs(x[2])<b || (b=abs(x[2]))
-    abs(x[3])<c || (c=abs(x[3]))
-end
 
 
-x = points[1,:][:]
-y = points[2,:][:]
-z = points[3,:][:]
 
-using PyPlot
+#### Old try of getting a projection ####
+# x = points[1,:][:]
+# y = points[2,:][:]
+# z = points[3,:][:]
+
+# using PyPlot
 
 
-tri = Any[]
+# tri = Any[]
 
-for ti in 1:size(faces,2)
-    push!(tri,faces[:,ti]-1)
-end
-#push!(tri,[0,1,2])
-#push!(tri,[90,2,200])
+# for ti in 1:size(faces,2)
+#     push!(tri,faces[:,ti]-1)
+# end
+# #push!(tri,[0,1,2])
+# #push!(tri,[90,2,200])
 
-# x = x[1:100:end]
-# y = y[1:100:end]
+# # x = x[1:100:end]
+# # y = y[1:100:end]
 
-#triplot(x,y,tri)
-#triplot(z,x,tri)
-#colors = 
-tripcolor(z,x,tri)
+# #triplot(x,y,tri)
+# #triplot(z,x,tri)
+# #colors = 
+# tripcolor(z,x,tri)

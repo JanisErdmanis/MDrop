@@ -1,1 +1,0 @@
-../mu25-Bm22.5omegaInf.jl
