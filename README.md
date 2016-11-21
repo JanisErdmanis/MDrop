@@ -33,5 +33,8 @@ Pkg.add("Elliptic")
 
   For running simulation execute in MDrop directory `julia -L .juliarc.jl mdrop.jl --simulation=FastField --Bm=20 --mu=10` which will run `FastField.jl` and sore results in `~/SimulationData`. Instead of passing command line arguments you can run simulation also as `julia -L .juliarc.jl -L config.jl Fastfield.jl`.
   
-# For citing this work refer to JFM article [not published yet]
-  
+# For citing this work refer to article
+
+```
+Erdmanis, J. & Kitenbergs, G. & Perzynski, R. & Cebers, A. (2017) Magnetic droplet in rotating field: numerical simulation and comparison with experiment
+```  
