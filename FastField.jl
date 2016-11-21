@@ -40,8 +40,6 @@ end
 # end
 
 memory = []
-E = []
-tau = []
 
 if con==true
     info("Continuing from last simulation")
@@ -71,20 +69,32 @@ else
     i = 1
 end
 
-push!(memory,(ti,points,faces))
 volume0 = volume(points,faces)
+sc = 0.01*(3*volume0/4/pi)^(1/3) ### charectaristic scale
 
-### Some event variables
+info("Proceding with simulation at Bm=$Bm")
+H0 = sqrt(Bm*gammap/(volume(points,faces)*3/4/pi)^(1/3))
+
+memory = []
 vn = zeros(points)
 tp = 0
+ip = i
 vi = 0
 xi = 0
 taui = 0
-Ep = Inf
-oldpoints = copy(points)
+Ei = Inf
 FluctatingEnergy = false
+Equilibrium = false
 
 while true
+    info("Starting with step $i")
+    
+    Ep = Ei
+    xp = xi
+    vp = vi
+    taup = taui
+    pointsp = copy(points)
+    
     normals = Array(Float64,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
@@ -93,63 +103,58 @@ while true
 
     psix,Htx,Hnx = fetch(fieldx)
     psiy,Hty,Hny = fetch(fieldy)
-
-    Ei = DropEnergy(points,faces,normals,psix,psiy,H0)
-    println("E = $Ei")
-    rV = volume(points,faces)/volume0
-    println("V/V0 = $rV")
-    push!(E,Ei)
-
+    
     tensorn = mup*(mup-1)/8/pi/2 * (Hnx.^2 + Hny.^2) + (mup-1)/8/pi/2 * (Htx.^2 + Hty.^2)
     vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
 
-    oldpoints = copy(points)
+    ### Calculating variables for this step
+    #pDx = xp - xi
+    Ei = DropEnergy(points,faces,normals,psix,psiy,H0)
+    rV = volume(points,faces)/volume0
+    vi = maximum(abs(vn))
+    xi = vi*(ti-tp)
+    taui = h/log(vp/vi)
+
+    if i==ip
+        v0max = vi
+    end
+    
+    println("E = $Ei")
+    println("$(h/log(vp/vi)*vi) < $(sc)")
+    println("vi/v0max = $(vi/v0max)")
+    push!(memory,(ti,copy(points),copy(faces),Ei,taui))
+
+    if mod(i,5)==0
+        save("$outdir/$i.jld","memory",memory)
+        memory = []
+    end
+
+    ### This is more cosmetic one
+    if rV==NaN || abs(rV - 1)>0.5
+        break
+    end
+
+    if (i-ip)>1000
+        break
+    end
+
+    if ti!=tp && h/log(vp/vi)*vi < sc && vi/v0max<0.01  # 1000
+        Equilibrium = true
+        break
+    end
+    
     for j in 1:size(points,2)
         points[:,j] += normals[:,j]*vn[j]*h
     end
     ti += h
     i += 1
 
-    ### When to stop?
+    actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
 
-    xp = xi
-    #pDx = xp - xi
-    vp = vi
-    vi = maximum(abs(vn))
-    xi = vi*(ti-tp)
-    taup = taui
-    taui = h/log(vp/vi)
-    push!(tau,taui)
-
-    if Ei>Ep
-        FluctatingEnergy = true
-    end
-
-    println("$xi < $scale; xi-xp=$(xp-xi)")
-    println("$(h/log(vp/vi)*vi) < $scale")
-    println("$(abs(taui/taup))")
-
-    if ti!=tp && xp-xi>0 && h/log(vp/vi)*vi < scale/100  # 1000
-        break
-    end
-
-    if mod(i,5)==0
-        storage = [tuple(memory[i]...,E[i],tau[i]) for i in 1:length(memory)]
-        save("$outdir/$i.jld","memory",storage)
-        memory = []
-        E = []
-        tau = []
-    end
-    
-    ### Can be commented out with ease
-    actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
-    push!(memory,(ti,points,faces))
-    info("Step $i has finished")
 end
 
-### Storage for last steps
-### Makes sense only if simulation exits while loop by itself
-push!(E,NaN)
-push!(tau,NaN)
-storage = [tuple(memory[i]...,E[i],tau[i]) for i in 1:length(memory)]
-save("$outdir/$i.jld","memory",storage)
+save("$outdir/$i.jld","memory",memory)
+if Equilibrium==false
+    info("Simulation did not achieve equilibrium")
+end
+

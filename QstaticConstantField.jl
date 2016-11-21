@@ -3,36 +3,10 @@
 using JLD
 using SurfaceGeometry
 
-@everywhere include("field.jl")
+include("field.jl")
 include("velocity.jl")
 
-function getabc(points)
-
-    ar = 0
-    al = 0
-    br = 0
-    bl = 0
-    cr = 0
-    cl = 0
-    
-    for xkey in 1:size(points,2)
-        x = points[:,xkey]
-        x[1]<al && (al=x[1])
-        x[1]>ar && (ar=x[1])
-        x[2]<bl && (bl=x[2])
-        x[2]>br && (br=x[2])
-        x[3]<cl && (cl=x[3])
-        x[3]>cr && (cr=x[3])
-    end
-
-    a = (ar - al)/2
-    b = (br - bl)/2
-    c = (cr - cl)/2
-
-    return a,b,c
-end
-
-function DropEnergy(points,faces,normals,psix,psiy,H0)
+function DropEnergy(points,faces,normals,psi,H0)
 
     vareas = zeros(Float64,size(points,2))
     for i in 1:size(faces,2)
@@ -52,7 +26,7 @@ function DropEnergy(points,faces,normals,psix,psiy,H0)
     s = 0
 
     for xkey in 1:size(points,2)
-        s += dot(H0/2*[psix[xkey],psiy[xkey],0],normals[:,xkey]) * vareas[xkey]
+        s += psi[xkey]*dot(H0,normals[:,xkey]) * vareas[xkey]
     end
 
     Es = gammap * Area
@@ -60,17 +34,6 @@ function DropEnergy(points,faces,normals,psix,psiy,H0)
 
     ### Here I could also do the normalisation of it    
     return Es+Em
-end
-
-function PointPerturbation(scale)
-    DR = rand()*scale/50
-    phi = rand()*2*pi
-    theta = rand()*pi
-
-    x = DR*sin(theta)*cos(phi)
-    y = DR*sin(theta)*sin(phi)
-    z = DR*cos(theta)
-    return [x,y,z]
 end
 
 if con==true
@@ -132,34 +95,6 @@ for Bmi in Bm_
     FluctatingEnergy = false
     Equilibrium = false
 
-    ### Stretch a bit before every quasystep
-    # a,b,c = getabc(points)
-    # if a/b<1.03
-    #     for j in 1:size(points,2)
-    #         x,y,z = points[:,j]
-    #         points[:,j] = [1.03*x,y,z]
-    #     end
-    # end
-
-    a,b,c = getabc(points)
-    if abs(a-b)<sc
-        for j in 1:size(points,2)
-            x,y,z = points[:,j]
-            points[:,j] = [(1+sc/a)*x,y,z]
-        end
-    end
-    ### For more complex perturbation
-    # for j in 1:size(points,2)
-    #     x,y,z = points[:,j]
-    #     r = sqrt(x^2 + y^2)
-    #     theta = atan2(z,r) 
-    #     #phi = atan2(y,x)
-    #     nx,ny,nz = normals[:,j]
-    #     phi = atan2(ny,nx)
-    #     Delta = scale/10*(cos(2*phi) + cos(3*phi))*cos(theta)^2
-    #     points[:,j] += Delta*normals[:,j]
-    # end
-
     ### Need to rescale for volume
     factor = (volume0/volume(points,faces))^(1/3)
     points = factor*points
@@ -176,18 +111,14 @@ for Bmi in Bm_
         normals = Array(Float64,size(points)...);
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
-        fieldx = @spawn surfacefield(points,faces,normals,mup,H0i*[1,0,0])
-        fieldy = @spawn surfacefield(points,faces,normals,mup,H0i*[0,1,0])
+        psi,Ht,Hn = surfacefield(points,faces,normals,mup,H0i*[1,0,0])
 
-        psix,Htx,Hnx = fetch(fieldx)
-        psiy,Hty,Hny = fetch(fieldy)
-        
-        tensorn = mup*(mup-1)/8/pi/2 * (Hnx.^2 + Hny.^2) + (mup-1)/8/pi/2 * (Htx.^2 + Hty.^2)
+        tensorn = mup*(mup-1)/8/pi * Hn.^2 + (mup-1)/8/pi * Ht.^2
         vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
 
         ### Calculating variables for this step
         #pDx = xp - xi
-        Ei = DropEnergy(points,faces,normals,psix,psiy,H0i)
+        Ei = DropEnergy(points,faces,normals,psi,H0i*[1,0,0])
         rV = volume(points,faces)/volume0
         vi = maximum(abs(vn))
         xi = vi*(ti-tp)
@@ -211,15 +142,6 @@ for Bmi in Bm_
             break
         end
 
-        # if Ei>Ep
-        #     FluctatingEnergy = true 
-        #     Equilibrium = true
-        #     break
-        # end
-                
-        #if ti!=tp && xp-xi>0 && h/log(vp/vi)*vi < scale/100  # 1000
-        # abs((taui-taup)/taui)<1e-5 &&
-        #if ti!=tp && h/log(vp/vi)*vi < sc/10 && vi/v0max<0.01  # 1000
         if ti!=tp && h/log(vp/vi)*vi < sc && vi/v0max<0.01  # 1000
             Equilibrium = true
             break
@@ -234,20 +156,6 @@ for Bmi in Bm_
 
         
         actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
-        
-
-        # when xp-xi becomes positive
-        # what if oscillates??
-        # if pDx<0 && xp-xi>0
-        #     for j in 1:size(points,2)
-        #         points[:,j] += PointPerturbation(scale)
-        #     end
-        # end
-
-        # ### Can be commented out with ease
-        # if !(maximum(abs(vn))*(ti-tp) < scale && ti!=tp && xp-xi>0)
-        #     actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
-        # end
     end
 
     if FluctatingEnergy==true

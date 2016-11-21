@@ -1,8 +1,8 @@
 using JLD
 using SurfaceGeometry
 
-include("modules/field.jl")
-include("modules/velocity.jl")
+include("field.jl")
+include("velocity.jl")
 
 #bname = "/SlowFieldEiler/"
 
@@ -71,10 +71,13 @@ else
     i = 1
 end
 
-push!(memory,(ti,points,faces))
+#push!(memory,(ti,points,faces))
 volume0 = volume(points,faces)
+memory = []
 
 while true
+    info("Starting with step $i")
+    
     normals = Array(Float64,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
@@ -84,18 +87,17 @@ while true
     println("E = $Ei")
     rV = volume(points,faces)/volume0
     println("V/V0 = $rV")
-    push!(E,Ei)
 
-    if mod(i,5)==0
-        storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
-        save("$outdir/$i.jld","memory",storage)
-        memory = []
-        E = []
-    end
-    
     tensorn = mup*(mup-1)/8/pi * Hn.^2 + (mup-1)/8/pi * Ht.^2
     vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
+    
+    push!(memory,(ti,copy(points),copy(faces),Ei))
+    if mod(i,5)==0
+        save("$outdir/$i.jld","memory",memory)
+        memory = []
+    end
 
+    ### Mesh stabilisation. Passive stabilisation tends to be usefull
     oldpoints = copy(points)
     for j in 1:size(points,2)
         points[:,j] += normals[:,j]*vn[j]*h
@@ -105,13 +107,6 @@ while true
 
     ### Can be commented out with ease
     actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
-
-    push!(memory,(ti,points,faces))
-    info("Step $i has finished")
 end
 
-### Storage for last steps
-### Makes sense only if simulation exits while loop by itself
-push!(E,NaN)
-storage = [tuple(memory[i]...,E[i]) for i in 1:length(memory)]
-save("$outdir/$i.jld","memory",storage)
+save("$outdir/$i.jld","memory",memory)
