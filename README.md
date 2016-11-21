@@ -10,7 +10,7 @@
 
   The code is written in `julia 0.4` and should work fine with latter versions. The code depends on `JLD.jl` which stores and loads meshes and simulations; `SurfaceGeometry.jl` which deals with mesh generation, stabilisation and others which are used for processing simulation results. 
 
-Assuming you are `Ubuntu` user install required dependencies `sudo apt-get install -y libcgal-dev liblapack-dev libblas-dev`, `sudo apt-get install csh hdf5-tools python-matplolib cmake` and if you want to use Distmesh mesh you also need Matlab. In julia REPL execute following lines
+Assuming you are `Ubuntu` user install required dependencies `sudo apt-get install -y libcgal-dev liblapack-dev libblas-dev`, `sudo apt-get install csh hdf5-tools cmake` and if you want to use Distmesh mesh you also need Matlab. In julia REPL execute following lines
 ```
 Pkg.init()
 Pkg.add("JLD")
