@@ -4,13 +4,13 @@
 
 # About
 
-  Magnetic droplet surface evolution boundary integral algorithms (BIE or BEM) according to magnetosatics and Stokes equations in general 3D case are presented in this repository.  
+  Magnetic droplet surface evolution boundary integral algorithms (BIE or BEM) according to magnetostatics and Stokes equations in general 3D case are presented in this repository.  
 
 # Requirements
 
-  The code is written in `julia 0.4` and should work fine with latter versions. The code depends on `JLD.jl` which stores and loads meshes and simulations; `SurfaceGeometry.jl` which deals with mesh generation, stabilisation and others which are used for processing simulation results. 
+  The code is written in `julia 0.4` and tested extensively  on `Ubuntu 16.04`. Main dependencies of the code are `JLD.jl` which stores and loads meshes and simulations; `SurfaceGeometry.jl` which deals with mesh generation, stabilization and others which are used for processing simulation results; 
 
-Assuming you are `Ubuntu` user install required dependencies `sudo apt-get install -y libcgal-dev liblapack-dev libblas-dev`, `sudo apt-get install csh hdf5-tools cmake` and if you want to use Distmesh mesh you also need Matlab. In julia REPL execute following lines
+Assuming you are `Ubuntu` install required dependencies with `sudo apt-get install -y libcgal-dev liblapack-dev libblas-dev`, `sudo apt-get install csh hdf5-tools cmake` and if you want to use Distmesh for mesh generation you also need Matlab. In julia REPL execute following lines
 ```
 Pkg.init()
 Pkg.add("JLD")
@@ -19,7 +19,7 @@ Pkg.add("FastGaussQuadrature")
 Pkg.clone("https://github.com/akels/SurfaceGeometry.jl")
 Pkg.build("SurfaceGeometry")
 ```
-Since packages might break features in the future I provide backup in `libs.zip`. Then instalation is just unziping this folder in julia package directory. 
+Since packages might break features in the future I provide backup in `libs.zip`. Then installation is just unzipping this folder in julia package directory. 
 
 Optional dependencies which are needed to view and process simulation data are installed with `sudo apt-get install python-matplotlib` and in julia REPL
 ```
