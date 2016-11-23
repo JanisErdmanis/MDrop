@@ -1,7 +1,0 @@
-SimulationData
-datadir
-using JLD
-ENV["JULIA_PKGDIR"]
-ENV["JULIA_PKGDIR"]
-lstat
-using SurfaceGeometry
