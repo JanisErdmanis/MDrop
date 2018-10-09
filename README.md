@@ -6,7 +6,23 @@
 
   Magnetic droplet surface evolution boundary integral algorithms (BIE or BEM) according to magnetostatics and Stokes equations in general 3D case are presented in this repository.  
 
-# Requirements
+# SetUP
+
+The code originaly was written with `julia 0.4` but now essentials are ported for `julia 0.7` and will run on `julia 1.0` when warnings will be adressed. It is now required that LINUX is being used for running simulation which is due to a binary dependency ElTopo.
+
+To run the code first repoitory needs to be cloned whch will be in `MDrop` folder. Then in `julia 0.7` one executes a following commands in the REPL (assuming that `.` is in repository folder)
+```
+]activate .
+resolve
+```
+which will install all the necessary dependencies for the code. To proceed then with a calculation one then executes a following commands:
+```
+include(".juliarc.jl")
+include("config.jl")
+include("FastField.jl")
+```
+
+# Requirements OLD
 
   The code is written in `julia 0.4` and tested extensively  on `Ubuntu 16.04`. Main dependencies of the code are `JLD.jl` which stores and loads meshes and simulations; `SurfaceGeometry.jl` which deals with mesh generation, stabilization and others which are used for processing simulation results; 
 
