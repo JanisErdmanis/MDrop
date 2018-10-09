@@ -46,7 +46,7 @@ function DropEnergy(points,faces,normals,psix,psiy,H0)
     Area = sum(vareas)
 
     ### For testing
-    normals = Array(Float64,size(points)...)
+    normals = Array{Float64}(undef,size(points)...)
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
     s = 0
@@ -173,7 +173,7 @@ for Bmi in Bm_
         taup = taui
         pointsp = copy(points)
         
-        normals = Array(Float64,size(points)...);
+        normals = Array{Float64}(undef,size(points)...);
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
         fieldx = @spawn surfacefield(points,faces,normals,mup,H0i*[1,0,0])
@@ -232,7 +232,8 @@ for Bmi in Bm_
         ti += h
         i += 1
 
-        
+
+
         actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
         
 

@@ -1,4 +1,5 @@
 using SurfaceGeometry
+using LinearAlgebra
 
 
 ### The Best way of making calculation now
@@ -7,7 +8,7 @@ function surfacefield(points,faces,normals,mup,Htime)
 
     psi = PotentialSimple(points,faces,mup,Htime)
     H = HField(points,faces,psi)
-    Ht = Array(Float64,size(points,2))
+    Ht = Array{Float64}(undef,size(points,2))
     for xkey in 1:size(points,2)
         nx = normals[:,xkey]
         P = eye(3) - nx*nx'
@@ -75,7 +76,7 @@ end
 function NormalFieldCurrent(points,faces,Ht,hmag,H0; eps=0.0001, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 
@@ -101,7 +102,7 @@ function NormalFieldCurrent(points,faces,Ht,hmag,H0; eps=0.0001, normals=nothing
         s = - dot(nx,cross(Hty - Htx,cross(ny,-(y-x)/norm(y-x)^2)))
     end
 
-    Hn = Array(Float64,size(points,2))
+    Hn = Array{Float64}(undef,size(points,2))
     
     for xkey in 1:size(points,2)
 
@@ -151,7 +152,7 @@ end
 function NormalFieldCurrentGaussian(points,faces,Ht,hmag,H0; eps=0.0001, NP=3, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
     
@@ -324,14 +325,14 @@ end
 function NormalFieldCurrentOld(points,faces,Ht,hmag,H0; eps=0.0001, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
     
-    normals = Array(Float64,size(points)...)
+    normals = Array{Float64}(undef,size(points)...)
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
-    vareas = zeros(Float64,size(points,2))
+    vareas = zeros{Float64}(undef,size(points,2))
     for i in 1:size(faces,2)
         v1,v2,v3 = faces[:,i]
         area = norm(cross(points[:,v2]-points[:,v1],points[:,v3]-points[:,v1])) /2
@@ -340,7 +341,7 @@ function NormalFieldCurrentOld(points,faces,Ht,hmag,H0; eps=0.0001, normals=noth
         vareas[v3] += area/3
     end
 
-    Hn = Array(Float64,size(points,2))
+    Hn = Array{Float64}(undef,size(points,2))
     
     for xkey in 1:size(points,2)
 
@@ -378,7 +379,7 @@ end
 function NormalFieldDomain(points,faces,psi,hmag,H0; eps=0.0001, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
     
@@ -394,7 +395,7 @@ function NormalFieldDomain(points,faces,psi,hmag,H0; eps=0.0001, normals=nothing
         vareas[v3] += area/3
     end
 
-    Hn = Array(Float64,size(points,2))
+    Hn = Array{Float64}(undef,size(points,2))
     
     for xkey in 1:size(points,2)
 
@@ -424,14 +425,14 @@ end
 function NormalFieldHypersingular(points,faces,psi,Ht; normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 
     # normals = Array(Float64,size(points)...)
     # NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
-    vareas = zeros(Float64,size(points,2))
+    vareas = zeros{Float64}(undef,size(points,2))
     for i in 1:size(faces,2)
         v1,v2,v3 = faces[:,i]
         area = norm(cross(points[:,v2]-points[:,v1],points[:,v3]-points[:,v1])) /2
@@ -525,7 +526,7 @@ end
 function NormalFieldRecalculated(points,faces,psi; normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 
@@ -541,7 +542,7 @@ function NormalFieldRecalculated(points,faces,psi; normals=nothing)
         vareas[v3] += area/3
     end
     
-    B = Array(Float64,size(points,2))
+    B = Array{Float64}(undef,size(points,2))
 
     for xkey in 1:size(points,2)
         x = points[:,xkey]
@@ -616,7 +617,7 @@ end
 
 function HtField(points,faces,psi;normals=nothing)
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 
@@ -639,7 +640,7 @@ function HField(points,faces,psi)
     # normals = Array(Float64,size(points)...)
     # NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
-    H = Array(Float64,size(points)...)
+    H = Array{Float64}(undef,size(points)...)
 
     for xkey in 1:size(points,2)
 
@@ -675,7 +676,7 @@ end
 function NormalField(points,faces,hmag,H0; regularize=false, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 
@@ -748,7 +749,7 @@ end
 function PotentialSimple(points,faces,hmag,H0;regularize=true,normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
     
@@ -867,7 +868,7 @@ end
 function NormalFieldGaussian(points,faces,rfaces,hmag,H0; NP=3, normals=nothing)
     
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 
@@ -1007,7 +1008,7 @@ end
 function NormalFieldTrapezodial(points,faces,rfaces,hmag,H0; NP=3, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
     
@@ -1154,7 +1155,7 @@ end
 function PotentialGaussian(points,faces,rfaces,hmag,H0; NP=3, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
     
@@ -1291,7 +1292,7 @@ end
 function PotentialGaussianPozikridis(points,faces,rfaces,hmag,H0; NP=3, regularize=true, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 
@@ -1365,7 +1366,7 @@ end
 function PotentialGaussianTrapezodial(points,faces,rfaces,hmag,H0; NP=3, normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
     
@@ -1494,7 +1495,7 @@ end
 function NormalFieldCurved(points,faces,rfaces,hmag,H0; normals=nothing)
 
     if normals==nothing
-        normals = Array(Float64,size(points)...)
+        normals = Array{Float64}(undef,size(points)...)
         NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
     end
 

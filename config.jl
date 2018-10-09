@@ -1,7 +1,7 @@
 mup = 10.
 Bm = 10.
 omega = 0.
-h = 0.1
+h = 0.01 # 0.1
 mesh = "sphere0.2"
 tau = 1
 con = false ### do not continue simulation

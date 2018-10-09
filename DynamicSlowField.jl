@@ -78,7 +78,7 @@ memory = []
 while true
     info("Starting with step $i")
     
-    normals = Array(Float64,size(points)...);
+    normals = Array{Float64}(undef,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
     psi,Ht,Hn = surfacefield(points,faces,normals,mup,H0*[cos(omega*ti),sin(omega*ti),0])
@@ -105,8 +105,9 @@ while true
     ti += h
     i += 1
 
+    ### BUG IN ELTOPO WRAPPER
     ### Can be commented out with ease
-    actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
+    #actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
 end
 
 save("$outdir/$i.jld","memory",memory)

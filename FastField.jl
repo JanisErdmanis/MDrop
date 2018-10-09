@@ -1,5 +1,6 @@
 using JLD
 using SurfaceGeometry
+using Distributed
 
 @everywhere include("field.jl")
 include("velocity.jl")
@@ -62,7 +63,7 @@ if con==true
     data = load("$outdir/$last")["memory"][end]
     ti,points,faces = data[1],data[2],data[3]
 else
-    info("Starting fresh simulation")
+    @info "Starting fresh simulation"
     run(`rm -rf $outdir`)
     mkdir(outdir)
     ti = 0
@@ -72,7 +73,7 @@ end
 volume0 = volume(points,faces)
 sc = 0.01*(3*volume0/4/pi)^(1/3) ### charectaristic scale
 
-info("Proceding with simulation at Bm=$Bm")
+@info "Proceding with simulation at Bm=$Bm"
 H0 = sqrt(Bm*gammap/(volume(points,faces)*3/4/pi)^(1/3))
 
 memory = []
@@ -87,7 +88,7 @@ FluctatingEnergy = false
 Equilibrium = false
 
 while true
-    info("Starting with step $i")
+    @info "Starting with step $i"
     
     Ep = Ei
     xp = xi
@@ -95,7 +96,7 @@ while true
     taup = taui
     pointsp = copy(points)
     
-    normals = Array(Float64,size(points)...);
+    normals = Array{Float64}(undef,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
     fieldx = @spawn surfacefield(points,faces,normals,mup,H0*[1,0,0])
@@ -111,12 +112,12 @@ while true
     #pDx = xp - xi
     Ei = DropEnergy(points,faces,normals,psix,psiy,H0)
     rV = volume(points,faces)/volume0
-    vi = maximum(abs(vn))
+    vi = maximum(abs.(vn))
     xi = vi*(ti-tp)
     taui = h/log(vp/vi)
 
     if i==ip
-        v0max = vi
+        global v0max = vi
     end
     
     println("E = $Ei")
@@ -149,7 +150,8 @@ while true
     ti += h
     i += 1
 
-    actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
+    #BUG IN ELTOPO WRAPPER
+    #actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
 
 end
 

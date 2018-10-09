@@ -89,7 +89,7 @@
 function InterfaceSpeedPozikridis(points,faces,forcen,etaP)
 
     ### A possible improvement would be the interpolation of curvature and normal
-    normals = Array(Float64,size(points)...)
+    normals = Array{Float64}(undef,size(points)...)
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
     vareas = zeros(Float64,size(points,2))
@@ -133,7 +133,7 @@ end
 function InterfaceSpeedZinchenko(points,faces,forcen,etaP,gammap)
 
     ### A possible improvement would be the interpolation of curvature and normal
-    normals = Array(Float64,size(points)...)
+    normals = Array{Float64}(undef,size(points)...)
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
 
     vareas = zeros(Float64,size(points,2))
@@ -179,8 +179,8 @@ end
 
 function Velocity3D(cmsh,etaP,gammaP)
 
-    curvaturep = Array(Float64,size(cmsh.points,2))
-    tensorn = Array(Float64,size(cmsh.faces,2))
+    curvaturep = Array{Float64}(undef,size(cmsh.points,2))
+    tensorn = Array{Float64}(undef,size(cmsh.faces,2))
     
     for xkey in 1:size(cmsh.points,2)
         curvaturep[xkey] = vcurvature(xkey,cmsh)
@@ -192,7 +192,7 @@ function Velocity3D(cmsh,etaP,gammaP)
     end
 
     velocityn = InterfaceSpeed(cmsh,tensorn,etaP)
-    velocity = Array(Float64,size(cmsh.points))
+    velocity = Array{Float64}(undef,size(cmsh.points))
     for vi in 1:size(cmsh.points,2)
 
         normall = vnormal(vi,cmsh)
@@ -204,8 +204,8 @@ end
 
 function MagneticVelocity3D(cmsh,hmag,H0,etaP,gammaP)
 
-    curvaturep = Array(Float64,size(cmsh.points,2))
-    tensorn = Array(Float64,size(cmsh.faces,2))
+    curvaturep = Array{Float64}(undef,size(cmsh.points,2))
+    tensorn = Array{Float64}(undef,size(cmsh.faces,2))
 
     println("Curvature...")
     for xkey in 1:size(cmsh.points,2)
@@ -238,7 +238,7 @@ function MagneticVelocity3D(cmsh,hmag,H0,etaP,gammaP)
     end
 
     velocityn = InterfaceSpeed(cmsh,tensorn,etaP)
-    velocity = Array(Float64,size(cmsh.points))
+    velocity = Array{Float64}(undef,size(cmsh.points))
     for vi in 1:size(cmsh.points,2)
 
         normall = vnormal(vi,cmsh)
