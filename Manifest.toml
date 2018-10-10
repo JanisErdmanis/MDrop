@@ -214,10 +214,10 @@ version = "0.3.1"
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
 
 [[NLSolversBase]]
-deps = ["Calculus", "DiffEqDiffTools", "DiffResults", "Distributed", "ForwardDiff", "LinearAlgebra", "Random", "SparseArrays", "Test"]
-git-tree-sha1 = "75f08d4dd9174855aefe4dc9532569450bffcd93"
+deps = ["Calculus", "DiffEqDiffTools", "DiffResults", "Distributed", "ForwardDiff", "LinearAlgebra", "Pkg", "Random", "SparseArrays", "Test"]
+git-tree-sha1 = "ebfb2e96970151753575b9c4d31d47e5ae8382a5"
 uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
-version = "7.1.0"
+version = "7.1.1"
 
 [[NaNMath]]
 deps = ["Compat"]
@@ -315,8 +315,10 @@ uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.25.0"
 
 [[SurfaceGeometry]]
-deps = ["ForwardDiff", "JLD", "MATLAB", "Optim", "Parameters"]
-path = "../SurfaceGeometry"
+deps = ["ForwardDiff", "JLD", "LinearAlgebra", "MATLAB", "Optim", "Parameters", "Test"]
+git-tree-sha1 = "d2bfda1c11af58a44e38963dcd57eaf480ad6af6"
+repo-rev = "master"
+repo-url = "https://github.com/akels/SurfaceGeometry.jl"
 uuid = "b2279eaa-c280-11e8-22b1-f9d34a2a1fce"
 version = "0.1.0"
 

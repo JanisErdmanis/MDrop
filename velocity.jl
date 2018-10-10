@@ -120,7 +120,7 @@ function InterfaceSpeedPozikridis(points,faces,forcen,etaP)
             ny = normals[:,ykey]
             fy = forcen[ykey]
             
-            s += vareas[ykey]*1./8/pi/etaP* ( dot(nx,ny)/norm(x-y) + dot(nx,x -y)*dot(ny,x-y)/norm(x-y)^3 )*(fy - fx)
+            s += vareas[ykey]*1 ./8/pi/etaP* ( dot(nx,ny)/norm(x-y) + dot(nx,x -y)*dot(ny,x-y)/norm(x-y)^3 )*(fy - fx)
         end
 
         velocityn[xkey] = s
@@ -165,9 +165,9 @@ function InterfaceSpeedZinchenko(points,faces,forcen,etaP,gammap)
             fy = forcen[ykey]
 
             ### I will need to check a missing 2
-            s += vareas[ykey]*1./8/pi/etaP* dot(y-x,nx+ny)/norm(y-x)^3*(1-3*dot(y-x,nx)*dot(y-x,ny)/norm(y-x)^2) * gammap
+            s += vareas[ykey]*1 ./8/pi/etaP* dot(y-x,nx+ny)/norm(y-x)^3*(1-3*dot(y-x,nx)*dot(y-x,ny)/norm(y-x)^2) * gammap
 
-            s += vareas[ykey]*1./8/pi/etaP* ( dot(nx,ny)/norm(x-y) + dot(nx,x -y)*dot(ny,x-y)/norm(x-y)^3 )*(fy - fx)
+            s += vareas[ykey]*1 ./8/pi/etaP* ( dot(nx,ny)/norm(x-y) + dot(nx,x -y)*dot(ny,x-y)/norm(x-y)^3 )*(fy - fx)
         end
 
         velocityn[xkey] = s

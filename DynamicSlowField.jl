@@ -44,7 +44,7 @@ memory = []
 E = []
 
 if con==true
-    info("Continuing from last simulation")
+    @info "Continuing from last simulation"
     if !isdir(outdir) || isempty(outdir)
         error("No previous simulation found")
     end
@@ -64,7 +64,7 @@ if con==true
     data = load("$outdir/$last")["memory"][end]
     ti,points,faces = data[1],data[2],data[3]
 else
-    info("Starting fresh simulation")
+    @info "Starting fresh simulation"
     run(`rm -rf $outdir`)
     mkdir(outdir)
     ti = 0
@@ -76,7 +76,7 @@ volume0 = volume(points,faces)
 memory = []
 
 while true
-    info("Starting with step $i")
+    @info "Starting with step $i"
     
     normals = Array{Float64}(undef,size(points)...);
     NormalVectors!(normals,points,faces,i->FaceVRing(i,faces))
@@ -94,7 +94,7 @@ while true
     push!(memory,(ti,copy(points),copy(faces),Ei))
     if mod(i,5)==0
         save("$outdir/$i.jld","memory",memory)
-        memory = []
+        global memory = []
     end
 
     ### Mesh stabilisation. Passive stabilisation tends to be usefull
@@ -102,8 +102,8 @@ while true
     for j in 1:size(points,2)
         points[:,j] += normals[:,j]*vn[j]*h
     end
-    ti += h
-    i += 1
+    global ti += h
+    global i += 1
 
     ### BUG IN ELTOPO WRAPPER
     ### Can be commented out with ease

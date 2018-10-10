@@ -9,7 +9,7 @@ include("velocity.jl")
 
 function DropEnergy(points,faces,normals,psix,psiy,H0)
 
-    vareas = zeros(Float64,size(points,2))
+    vareas = zero(points)
     for i in 1:size(faces,2)
         v1,v2,v3 = faces[:,i]
         area = norm(cross(points[:,v2]-points[:,v1],points[:,v3]-points[:,v1])) /2
@@ -77,7 +77,7 @@ sc = 0.01*(3*volume0/4/pi)^(1/3) ### charectaristic scale
 H0 = sqrt(Bm*gammap/(volume(points,faces)*3/4/pi)^(1/3))
 
 memory = []
-vn = zeros(points)
+vn = zero(points)
 tp = 0
 ip = i
 vi = 0
@@ -106,15 +106,15 @@ while true
     psiy,Hty,Hny = fetch(fieldy)
     
     tensorn = mup*(mup-1)/8/pi/2 * (Hnx.^2 + Hny.^2) + (mup-1)/8/pi/2 * (Htx.^2 + Hty.^2)
-    vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
+    global vn = InterfaceSpeedZinchenko(points,faces,tensorn,etap,gammap)
 
     ### Calculating variables for this step
     #pDx = xp - xi
-    Ei = DropEnergy(points,faces,normals,psix,psiy,H0)
+    global Ei = DropEnergy(points,faces,normals,psix,psiy,H0)
     rV = volume(points,faces)/volume0
-    vi = maximum(abs.(vn))
-    xi = vi*(ti-tp)
-    taui = h/log(vp/vi)
+    global vi = maximum(abs.(vn))
+    global xi = vi*(ti-tp)
+    global taui = h/log(vp/vi)
 
     if i==ip
         global v0max = vi
@@ -127,7 +127,7 @@ while true
 
     if mod(i,5)==0
         save("$outdir/$i.jld","memory",memory)
-        memory = []
+        global memory = []
     end
 
     ### This is more cosmetic one
@@ -140,15 +140,15 @@ while true
     end
 
     if ti!=tp && h/log(vp/vi)*vi < sc && vi/v0max<0.01  # 1000
-        Equilibrium = true
+        global Equilibrium = true
         break
     end
     
     for j in 1:size(points,2)
         points[:,j] += normals[:,j]*vn[j]*h
     end
-    ti += h
-    i += 1
+    global ti += h
+    global i += 1
 
     #BUG IN ELTOPO WRAPPER
     #actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)

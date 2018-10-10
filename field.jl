@@ -1,6 +1,10 @@
 using SurfaceGeometry
 using LinearAlgebra
 
+eye(A::AbstractMatrix{T}) where T = Matrix{eltype(A)}(I,size(A))
+eye(m::Integer) = Matrix(1.0I,m,m)
+diagm(x) = Matrix(Diagonal(x))
+
 
 ### The Best way of making calculation now
 ### One which needs signifficant improvement for speed

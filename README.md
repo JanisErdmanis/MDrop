@@ -8,7 +8,7 @@
 
 # SetUP
 
-The code originaly was written with `julia 0.4` but now essentials are ported for `julia 0.7` and will run on `julia 1.0` when warnings will be adressed. It is now required that LINUX is being used for running simulation which is due to a binary dependency ElTopo.
+The code originaly was written with `julia 0.4` but now essentials are ported for `julia 1.0` and will run on `julia 1.0` when warnings will be adressed. It is now required that LINUX is being used for running simulation which is due to a binary dependency ElTopo.
 
 To run the code first repoitory needs to be cloned whch will be in `MDrop` folder. Then in `julia 0.7` one executes a following commands in the REPL (assuming that `.` is in repository folder)
 ```
