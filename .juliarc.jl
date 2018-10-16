@@ -1,3 +1,7 @@
+using Pkg
+pkg"activate ."
+pkg"resolve"
+
 BaseDir = dirname(@__FILE__)
 
 ENV["JULIA_PKGDIR"] = BaseDir * "/packages"

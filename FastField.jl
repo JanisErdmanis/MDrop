@@ -87,8 +87,15 @@ Ei = Inf
 FluctatingEnergy = false
 Equilibrium = false
 
+# WTF issue
+points2 = copy(points)
+faces2 = copy(faces)
+
 while true
     @info "Starting with step $i"
+
+    points = points2
+    faces = faces2
     
     Ep = Ei
     xp = xi
@@ -132,16 +139,16 @@ while true
 
     ### This is more cosmetic one
     if rV==NaN || abs(rV - 1)>0.5
-        break
+#        break
     end
 
     if (i-ip)>1000
-        break
+ #       break
     end
 
     if ti!=tp && h/log(vp/vi)*vi < sc && vi/v0max<0.01  # 1000
         global Equilibrium = true
-        break
+#        break
     end
     
     for j in 1:size(points,2)
@@ -150,13 +157,14 @@ while true
     global ti += h
     global i += 1
 
-    #BUG IN ELTOPO WRAPPER
-    #actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
+    # ElTopo magic.
+    actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
+    #points,faces = improvemesh(points,faces,par)
 
 end
 
 save("$outdir/$i.jld","memory",memory)
 if Equilibrium==false
-    info("Simulation did not achieve equilibrium")
+    @info "Simulation did not achieve equilibrium"
 end
 

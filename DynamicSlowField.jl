@@ -105,9 +105,8 @@ while true
     global ti += h
     global i += 1
 
-    ### BUG IN ELTOPO WRAPPER
-    ### Can be commented out with ease
-    #actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
+    ### Can be commented out with ease. ElTopo magic.
+    actualdt,points,faces = improvemeshcol(oldpoints,faces,points,par)
 end
 
 save("$outdir/$i.jld","memory",memory)

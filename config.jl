@@ -1,7 +1,11 @@
+using SurfaceGeometry
+using ElTopo
+using JLD
+
 mup = 10.
 Bm = 10.
 omega = 0.
-h = 0.01 # 0.1
+h = 0.1
 mesh = "sphere0.2"
 tau = 1
 con = false ### do not continue simulation
@@ -14,12 +18,10 @@ end
 outdir = "$datadir/config/$mesh:mu=$mup;Bm=$Bm;omega=$omega"
 
 ### loading mesh
-using JLD
 data = load("meshes/$mesh.jld")
 points,faces = data["points"],data["faces"]
 
 ### Dimensional parameters
-using SurfaceGeometry
 gammap = 1.
 etap = gammap/tau/(volume(points,faces)*3/4/pi)^(1/3)
 H0 = sqrt(Bm*gammap/(volume(points,faces)*3/4/pi)^(1/3))
@@ -37,7 +39,7 @@ elparameters(scale) = Elparameters(
  m_collision_safety = false,
  m_min_triangle_angle = 15,
  m_max_triangle_angle = 120,
- m_allow_vertex_movement = true, ### 
+ m_allow_vertex_movement = false, #true, ### This is where is a bug
  m_use_curvature_when_collapsing = false,
  m_use_curvature_when_splitting = false,
  m_dt = 1

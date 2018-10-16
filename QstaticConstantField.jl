@@ -154,8 +154,8 @@ for Bmi in Bm_
         global ti += h
         global i += 1
 
-        # BUG IN ELTOPO WRAPPER
-        #actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
+        # ElTopo magic
+        actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
     end
 
     if FluctatingEnergy==true

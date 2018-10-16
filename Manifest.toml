@@ -15,9 +15,9 @@ version = "0.8.10"
 
 [[BinaryProvider]]
 deps = ["Libdl", "Pkg", "SHA", "Test"]
-git-tree-sha1 = "38be61810f280c3c478f5c38aaf387f8f9199275"
+git-tree-sha1 = "9930c1a6cd49d9fcd7218df6be417e6ae4f1468a"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
-version = "0.5.1"
+version = "0.5.2"
 
 [[Blosc]]
 deps = ["BinaryProvider", "CMakeWrapper", "Compat", "Libdl"]
@@ -33,9 +33,9 @@ version = "1.0.0"
 
 [[CMake]]
 deps = ["BinDeps", "Libdl", "Pkg", "Test"]
-git-tree-sha1 = "4f0b34e12d4d2c6a367d62c73c961ad468d62b7b"
+git-tree-sha1 = "74853a75c26a4a73ac391ee26ee29ebeb5583d9f"
 uuid = "631607c0-34d2-5d66-819e-eb0f9aa2061a"
-version = "1.0.2"
+version = "1.1.0"
 
 [[CMakeWrapper]]
 deps = ["BinDeps", "CMake", "Libdl", "Parameters", "Pkg", "Test"]
@@ -57,9 +57,9 @@ version = "0.2.0"
 
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
-git-tree-sha1 = "ff2595695fc4f14427358ce2593f867085c45dcb"
+git-tree-sha1 = "2d9e14d19bad3f9ad5cc5e4cffabc3cfa59de825"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "1.2.0"
+version = "1.3.0"
 
 [[DataStructures]]
 deps = ["InteractiveUtils", "OrderedCollections", "REPL", "Random", "Serialization", "Test"]
@@ -96,6 +96,14 @@ version = "0.0.7"
 [[Distributed]]
 deps = ["LinearAlgebra", "Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
+
+[[ElTopo]]
+deps = ["BinaryProvider", "JLD", "Libdl", "Parameters"]
+git-tree-sha1 = "0273e05aae9ec49308ec985536e2e74e14bab890"
+repo-rev = "cc09cff2527b0f320f1efe1e5c60dfe75c8f4a2d"
+repo-url = "https://github.com/akels/ElTopo.jl"
+uuid = "6379d376-cf42-11e8-13e7-47834244551c"
+version = "0.1.0"
 
 [[FastGaussQuadrature]]
 deps = ["Compat", "LinearAlgebra", "SpecialFunctions"]
@@ -194,12 +202,6 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
 
-[[MATLAB]]
-deps = ["Libdl", "SparseArrays", "Test"]
-git-tree-sha1 = "323855e9927706cba0fba649be9ffb44e3874d3c"
-uuid = "10e44e05-a98a-55b3-a45b-ba969058deb6"
-version = "0.7.0"
-
 [[Markdown]]
 deps = ["Base64"]
 uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
@@ -227,9 +229,9 @@ version = "0.3.2"
 
 [[Optim]]
 deps = ["Calculus", "Compat", "DiffEqDiffTools", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "NaNMath", "Parameters", "Pkg", "PositiveFactorizations", "Printf", "Random", "SparseArrays", "StatsBase", "Test"]
-git-tree-sha1 = "0ed8809e72d3b595930c8ade539838a99f94dc8b"
+git-tree-sha1 = "ba60a8f4adceb8a881c683e59a799cb4d11e9e69"
 uuid = "429524aa-4258-5aef-a3af-852621145aeb"
-version = "0.16.0"
+version = "0.17.1"
 
 [[OrderedCollections]]
 deps = ["Pkg", "Random", "Serialization", "Test"]
@@ -315,9 +317,9 @@ uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.25.0"
 
 [[SurfaceGeometry]]
-deps = ["ForwardDiff", "JLD", "LinearAlgebra", "MATLAB", "Optim", "Parameters", "Test"]
-git-tree-sha1 = "d2bfda1c11af58a44e38963dcd57eaf480ad6af6"
-repo-rev = "master"
+deps = ["ForwardDiff", "JLD", "LinearAlgebra", "Optim", "Parameters", "SpecialFunctions", "Test"]
+git-tree-sha1 = "0d6ff84c9587a07e52baf771634285619886ffa2"
+repo-rev = "d8befcd9dcb7f8026279bd80b81f7cf2ff757495"
 repo-url = "https://github.com/akels/SurfaceGeometry.jl"
 uuid = "b2279eaa-c280-11e8-22b1-f9d34a2a1fce"
 version = "0.1.0"

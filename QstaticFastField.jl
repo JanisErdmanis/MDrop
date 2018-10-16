@@ -234,8 +234,8 @@ for Bmi in Bm_
         global i += 1
 
 
-        ### ELTOPO WRAPPER BUG
-        #actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
+        # ElTopo magic
+        actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
         
 
         # when xp-xi becomes positive
