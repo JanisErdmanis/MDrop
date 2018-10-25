@@ -1,8 +1,8 @@
 [[ArgParse]]
-deps = ["Compat", "Test", "TextWrap"]
-git-tree-sha1 = "295c309124b8385cca4d26b2669b17f9d44d8269"
+deps = ["Compat", "Pkg", "Test", "TextWrap"]
+git-tree-sha1 = "37159c768f28ae52ef9af1e70669d25a68ba7d61"
 uuid = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
-version = "0.6.0"
+version = "0.6.1"
 
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
@@ -77,9 +77,9 @@ uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
 [[DiffEqDiffTools]]
 deps = ["LinearAlgebra", "Test"]
-git-tree-sha1 = "9c7a902a53542b5b3178a2ed16878bda02685456"
+git-tree-sha1 = "5d220295e07640ae3c096c3511fcc15081e61f80"
 uuid = "01453d9d-ee7c-5054-8395-0335cb756afa"
-version = "0.6.0"
+version = "0.7.0"
 
 [[DiffResults]]
 deps = ["Compat", "StaticArrays"]
@@ -100,7 +100,7 @@ uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 [[ElTopo]]
 deps = ["BinaryProvider", "JLD", "Libdl", "Parameters"]
 git-tree-sha1 = "0273e05aae9ec49308ec985536e2e74e14bab890"
-repo-rev = "cc09cff2527b0f320f1efe1e5c60dfe75c8f4a2d"
+repo-rev = "master"
 repo-url = "https://github.com/akels/ElTopo.jl"
 uuid = "6379d376-cf42-11e8-13e7-47834244551c"
 version = "0.1.0"
@@ -119,9 +119,9 @@ version = "1.0.2"
 
 [[ForwardDiff]]
 deps = ["CommonSubexpressions", "DiffResults", "DiffRules", "InteractiveUtils", "LinearAlgebra", "NaNMath", "Pkg", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "Test"]
-git-tree-sha1 = "8425a7d4e060bc2ded32d090bce910a187d6cce7"
+git-tree-sha1 = "d8f3e0f19d0d546aa92eb1cd67cd3e515768d9f7"
 uuid = "f6369f11-7733-5829-9624-2563aa707210"
-version = "0.9.0"
+version = "0.10.0"
 
 [[HDF5]]
 deps = ["BinDeps", "Blosc", "Distributed", "Homebrew", "Libdl", "LinearAlgebra", "Mmap", "Pkg", "Test", "WinRPM"]
@@ -146,12 +146,10 @@ deps = ["LinearAlgebra", "Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[JLD]]
-deps = ["Compat", "FileIO", "HDF5", "LegacyStrings", "Profile"]
-git-tree-sha1 = "87a2e25eea4391e05a13f13c14e4b91c2cea8caa"
-repo-rev = "master"
-repo-url = "https://github.com/crbinz/JLD.jl"
+deps = ["Compat", "FileIO", "HDF5", "LegacyStrings", "Pkg", "Profile", "Random"]
+git-tree-sha1 = "92bf6378990058fb3471e13655a962991afda6b9"
 uuid = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
-version = "0.8.3+"
+version = "0.9.0"
 
 [[JSON]]
 deps = ["Dates", "Distributed", "Mmap", "Pkg", "Sockets", "Test", "Unicode"]
@@ -301,10 +299,10 @@ uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
 version = "0.7.1"
 
 [[StaticArrays]]
-deps = ["InteractiveUtils", "LinearAlgebra", "Random", "Statistics", "Test"]
-git-tree-sha1 = "d432c79bef174a830304f8601427a4357dfdbfb7"
+deps = ["InteractiveUtils", "LinearAlgebra", "Pkg", "Random", "Statistics", "Test"]
+git-tree-sha1 = "ebc5c2a27d91d5ec611a9861168182e2168effd3"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "0.8.3"
+version = "0.9.2"
 
 [[Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -319,7 +317,7 @@ version = "0.25.0"
 [[SurfaceGeometry]]
 deps = ["ForwardDiff", "JLD", "LinearAlgebra", "Optim", "Parameters", "SpecialFunctions", "Test"]
 git-tree-sha1 = "0d6ff84c9587a07e52baf771634285619886ffa2"
-repo-rev = "d8befcd9dcb7f8026279bd80b81f7cf2ff757495"
+repo-rev = "master"
 repo-url = "https://github.com/akels/SurfaceGeometry.jl"
 uuid = "b2279eaa-c280-11e8-22b1-f9d34a2a1fce"
 version = "0.1.0"
