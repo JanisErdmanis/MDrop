@@ -3,6 +3,7 @@
 using JLD
 using SurfaceGeometry
 
+
 include("field.jl")
 include("velocity.jl")
 
@@ -155,7 +156,7 @@ for Bmi in Bm_
         global i += 1
 
         # ElTopo magic
-        actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
+        global actualdt,points,faces = improvemeshcol(pointsp,faces,points,par)
     end
 
     if FluctatingEnergy==true
